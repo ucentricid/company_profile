@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model InternshipRole {
+  id          String   @id @default(cuid())
+  title       String
+  department  String
+  type        String
+  location    String
+  isActive    Boolean  @default(true)
+  applications InternshipApplication[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model University {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  applications InternshipApplication[]
+}
+
+model Major {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  applications InternshipApplication[]
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  INTERVIEWING
+  OFFERED
+  REJECTED
+  ACCEPTED
+}
+
+model InternshipApplication {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  
+  universityId String
+  university   University @relation(fields: [universityId], references: [id])
+  
+  majorId      String
+  major        Major      @relation(fields: [majorId], references: [id])
+  
+  semester    String
+  portfolioUrl String?
+  motivation  String   @db.Text
+  cvUrl       String?
+  
+  roleId      String
+  role        InternshipRole @relation(fields: [roleId], references: [id])
+  
+  status      ApplicationStatus   @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
