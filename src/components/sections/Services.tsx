@@ -57,8 +57,7 @@ function ServiceCard({ title, description, icon: Icon }: { title: string; descri
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
-      <Card 
-        variant="glass" 
+      <Card
         className="group relative overflow-hidden h-full border-white/5 bg-white/5 hover:bg-white/10 transition-colors duration-500"
         onMouseMove={handleMouseMove}
       >
@@ -75,7 +74,7 @@ function ServiceCard({ title, description, icon: Icon }: { title: string; descri
             `,
           }}
         />
-        
+
         <CardContent className="relative flex flex-col gap-6 p-8">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/25">
             <Icon className="h-7 w-7" />
@@ -97,41 +96,41 @@ function ServiceCard({ title, description, icon: Icon }: { title: string; descri
 export function Services() {
   return (
     <Section id="services" className="bg-background">
-       {/* Decorative Background */}
-       <div className="absolute top-1/2 left-0 -z-10 h-[600px] w-[600px] -translate-y-1/2 bg-primary/5 blur-[120px] rounded-full opacity-50" />
-       
-       <div className="mb-16 flex flex-col items-center text-center space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm font-medium text-primary mb-4 backdrop-blur-sm">
-              <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse" />
-              Our Expertise
-            </div>
-            <Heading variant="h2" className="mb-4">
-               Comprehensive <span className="text-primary">Digital Services</span>
-            </Heading>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-          >
-            <Text variant="muted" className="max-w-[700px] md:text-lg">
-               We provide end-to-end digital solutions designed to scale your business, from concept to execution.
-            </Text>
-          </motion.div>
-       </div>
+      {/* Decorative Background */}
+      <div className="absolute top-1/2 left-0 -z-10 h-[600px] w-[600px] -translate-y-1/2 bg-primary/5 blur-[120px] rounded-full opacity-50" />
 
-       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-         {services.map((service, index) => (
-           <ServiceCard key={index} {...service} />
-         ))}
-       </div>
+      <div className="mb-16 flex flex-col items-center text-center space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm font-medium text-primary mb-4 backdrop-blur-sm">
+            <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse" />
+            Our Expertise
+          </div>
+          <Heading variant="h2" className="mb-4">
+            Comprehensive <span className="text-primary">Digital Services</span>
+          </Heading>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+        >
+          <Text variant="muted" className="max-w-[700px] md:text-lg">
+            We provide end-to-end digital solutions designed to scale your business, from concept to execution.
+          </Text>
+        </motion.div>
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {services.map((service, index) => (
+          <ServiceCard key={index} {...service} />
+        ))}
+      </div>
     </Section>
   )
 }

@@ -24,26 +24,30 @@ export async function createApplication(formData: FormData) {
     const roleType = formData.get("roleType") as string
     const motivation = formData.get("motivation") as string
     const cvUrl = "https://placeholder.com/cv.pdf" // Mock for now until file upload is real
-    
-    // Map roleType value to a readable title
-    const roleTitles: Record<string, string> = {
-      frontend: "Frontend Developer Intern",
-      uiux: "UI/UX Designer Intern",
-      content: "Content Creator Intern",
-      backend: "Backend Developer Intern"
-    }
-    const roleTitle = roleTitles[roleType] || roleType
+
+    const roleId = formData.get("roleId") as string || "clz..." // Fallback or handle error
 
     await prisma.internshipApplication.create({
       data: {
         firstName,
         lastName,
         email,
-        university,
-        major,
-        semester: "N/A", // Default for manual entry if not asked
-        roleType,
-        roleTitle,
+        university: {
+          connectOrCreate: {
+            where: { name: university },
+            create: { name: university }
+          }
+        },
+        major: {
+          connectOrCreate: {
+            where: { name: major },
+            create: { name: major }
+          }
+        },
+        semester: "N/A",
+        role: {
+          connect: { id: roleId }
+        },
         motivation,
         cvUrl,
         portfolioUrl: formData.get("portfolioUrl") as string || null,
