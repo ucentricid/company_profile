@@ -21,6 +21,19 @@ const redHatDisplay = Red_Hat_Display({
   display: "swap",
 });
 
+export const metadata: Metadata = {
+  title: {
+    default: SITE_CONFIG.name,
+    template: `%s | ${SITE_CONFIG.name}`,
+  },
+  description: SITE_CONFIG.description,
+  icons: {
+    icon: "/images/logo-ucentric-nobg.png", // Using the logo as favicon
+    shortcut: "/images/logo-ucentric-nobg.png",
+    apple: "/images/logo-ucentric-nobg.png",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

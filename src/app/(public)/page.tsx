@@ -6,7 +6,13 @@ import { About } from "@/components/sections/About";
 import { Team } from "@/components/sections/Team";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Blog } from "@/components/sections/Blog";
+import type { Metadata } from 'next'
 import { CareerCTA } from "@/components/sections/CareerCTA";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description: "Your Partner in IT Digital Product Development",
+}
 
 export default function Home() {
   return (

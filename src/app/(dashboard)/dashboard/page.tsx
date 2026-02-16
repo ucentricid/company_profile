@@ -1,6 +1,9 @@
-"use client"
-
+import type { Metadata } from 'next'
 import { Heading } from "@/components/ui/Typography"
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+}
 
 export default function DashboardPage() {
   return (
