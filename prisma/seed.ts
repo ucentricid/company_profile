@@ -4,6 +4,7 @@ const prisma = new PrismaClient()
 
 const INITIAL_ROLES = [
   {
+    slug: "frontend-developer-intern",
     title: "Frontend Developer Intern",
     department: "Engineering",
     type: "Internship (3 Months)",
@@ -11,6 +12,7 @@ const INITIAL_ROLES = [
     isActive: true,
   },
   {
+    slug: "ui-ux-designer-intern",
     title: "UI/UX Designer Intern",
     department: "Product Design",
     type: "Internship (3 Months)",
@@ -18,6 +20,7 @@ const INITIAL_ROLES = [
     isActive: true,
   },
   {
+    slug: "content-creator-intern",
     title: "Content Creator Intern",
     department: "Marketing",
     type: "Internship (3 Months)",
@@ -28,7 +31,7 @@ const INITIAL_ROLES = [
 
 async function main() {
   console.log('Start seeding...')
-  
+
   for (const role of INITIAL_ROLES) {
     const createdRole = await prisma.internshipRole.create({
       data: role,
