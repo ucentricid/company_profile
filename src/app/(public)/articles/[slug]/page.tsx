@@ -1,18 +1,20 @@
 "use client"
 
 import * as React from "react"
+import { use } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { ArrowLeft, Clock, Calendar, Share2, Facebook, Twitter, Linkedin, Bookmark } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { Section } from "../../../components/ui/Section"
-import { Heading } from "../../../components/ui/Typography"
-import { Badge } from "../../../components/ui/Badge"
-import { Button } from "../../../components/ui/Button"
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/Avatar"
-import { Separator } from "../../../components/ui/Separator"
+import { Section } from "@/components/ui/Section"
+import { Heading } from "@/components/ui/Typography"
+import { Badge } from "@/components/ui/Badge"
+import { Button } from "@/components/ui/Button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
+import { Separator } from "@/components/ui/Separator"
 
-export default function ArticleDetailPage({ params }: { params: { slug: string } }) {
+export default function ArticleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 

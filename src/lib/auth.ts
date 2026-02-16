@@ -24,6 +24,7 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // @ts-ignore
         const user = await db.user.findUnique({
           where: {
             email: credentials.email
@@ -34,25 +35,29 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        // For now, simple password check (In real app, use bcrypt)
-        // const isPasswordValid = await compare(credentials.password, user.password)
-        // if (!isPasswordValid) return null
-        
-        // TEMPORARY: Allow login if user exists, regardless of password (dev mode)
-        // until we implement registration with hashing.
+        // Check if user has a password (oauth users might not)
+        if (!user.password) {
+          return null
+        }
+
+        const isPasswordValid = await compare(credentials.password, user.password)
+
+        if (!isPasswordValid) {
+          return null
+        }
         
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: user.role || "user",
         }
       }
     })
   ],
   callbacks: {
     async session({ session, token }) {
-        if (token) {
+        if (token && session.user) {
             session.user.id = token.id as string
             session.user.role = token.role as string
         }
@@ -61,7 +66,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
         if (user) {
             token.id = user.id
-            token.role = user.role
+            token.role = user.role || "user"
         }
         return token
     }

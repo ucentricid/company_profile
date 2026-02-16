@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, Check } from "lucide-react"
+import { ChevronDown, Check, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface SelectOption {
@@ -18,10 +18,12 @@ interface SelectProps {
   placeholder?: string
   className?: string
   label?: string
+  searchable?: boolean
 }
 
-export function Select({ options, value, onChange, placeholder = "Select an option", className, label }: SelectProps) {
+export function Select({ options, value, onChange, placeholder = "Select an option", className, label, searchable = false }: SelectProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [searchQuery, setSearchQuery] = React.useState("")
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   // Close on click outside
@@ -35,7 +37,16 @@ export function Select({ options, value, onChange, placeholder = "Select an opti
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  // Reset search on close
+  React.useEffect(() => {
+    if (!isOpen) setSearchQuery("")
+  }, [isOpen])
+
   const selectedOption = options.find(opt => opt.value === value)
+
+  const filteredOptions = options.filter(opt => 
+    opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <div className={cn("relative space-y-2", className)} ref={containerRef}>
@@ -69,27 +80,47 @@ export function Select({ options, value, onChange, placeholder = "Select an opti
               transition={{ duration: 0.2 }}
               className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden"
             >
+              {searchable && (
+                <div className="p-2 border-b border-gray-100">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border-none rounded-lg focus:ring-2 focus:ring-primary/20 outline-none"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </div>
+              )}
+              
               <div className="py-1 max-h-60 overflow-y-auto custom-scrollbar">
-                {options.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => {
-                      onChange(option.value)
-                      setIsOpen(false)
-                    }}
-                    className={cn(
-                      "w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors hover:bg-orange-50",
-                      value === option.value ? "bg-orange-50 text-primary font-medium" : "text-gray-700"
-                    )}
-                  >
-                    <span className="flex items-center gap-3">
-                       {option.icon && <option.icon className={cn("w-4 h-4", value === option.value ? "text-primary" : "text-gray-400")} />}
-                       {option.label}
-                    </span>
-                    {value === option.value && <Check className="w-4 h-4 text-primary" />}
-                  </button>
-                ))}
+                {filteredOptions.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-500 text-center">No options found.</div>
+                ) : (
+                    filteredOptions.map((option) => (
+                    <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                        onChange(option.value)
+                        setIsOpen(false)
+                        }}
+                        className={cn(
+                        "w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors hover:bg-orange-50",
+                        value === option.value ? "bg-orange-50 text-primary font-medium" : "text-gray-700"
+                        )}
+                    >
+                        <span className="flex items-center gap-3">
+                        {option.icon && <option.icon className={cn("w-4 h-4", value === option.value ? "text-primary" : "text-gray-400")} />}
+                        {option.label}
+                        </span>
+                        {value === option.value && <Check className="w-4 h-4 text-primary" />}
+                    </button>
+                    ))
+                )}
               </div>
             </motion.div>
           )}

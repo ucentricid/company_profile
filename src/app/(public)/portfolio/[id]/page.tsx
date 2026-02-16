@@ -1,5 +1,6 @@
 "use client"
 
+import { use } from "react"
 import * as React from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, ArrowUpRight, Calendar, Github, Globe, Layers, User } from "lucide-react"
@@ -50,7 +51,8 @@ const PROJECT = {
   images: ["bg-orange-500", "bg-blue-500", "bg-purple-500"] // Placeholders
 }
 
-export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   return (
     <main className="min-h-screen pt-24 pb-12 bg-background relative selection:bg-primary/20 selection:text-primary">
       {/* Back Button */}

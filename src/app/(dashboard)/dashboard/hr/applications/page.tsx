@@ -1,224 +1,729 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Heading, Text } from "@/components/ui/Typography"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Modal } from "@/components/ui/Modal"
 import { Select } from "@/components/ui/Select"
-import { Search, Filter, Eye, CheckCircle, XCircle, FileText, Plus, Upload, Code, PenTool, Video, Server } from "lucide-react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table"
+import Swal from "sweetalert2"
+import { 
+    Search, Filter, CheckCircle, XCircle, FileText, Plus, Upload, Code, 
+    PenTool, Video, Server, ArrowRight, Clock, AlertCircle, CheckCircle2,
+    ChevronLeft, ChevronRight, Eye 
+} from "lucide-react"
 
-// Dummy Data for visualization
-const APPLICATIONS = [
-  { id: 1, name: "Alice Johnson", role: "Frontend Developer Intern", university: "Universitas Indonesia", status: "PENDING", date: "2 mins ago" },
-  { id: 2, name: "Bob Smith", role: "UI/UX Designer Intern", university: "ITB", status: "REVIEWED", date: "1 hour ago" },
-  { id: 3, name: "Charlie Brown", role: "Content Creator Intern", university: "Binus University", status: "REJECTED", date: "Yesterday" },
-  { id: 4, name: "Diana Prince", role: "Frontend Developer Intern", university: "UGM", status: "ACCEPTED", date: "2 days ago" },
-  { id: 5, name: "Evan Wright", role: "Backend Developer Intern", university: "ITS", status: "PENDING", date: "3 days ago" },
-]
+// Types
+type ApplicationStatus = "PENDING" | "REVIEWING" | "ACCEPTED" | "REJECTED"
+
+interface Application {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: { title: string }
+  university: { name: string }
+  major: { name: string }
+  status: ApplicationStatus
+  createdAt: string
+  portfolioUrl?: string | null
+}
+
+interface MasterData {
+  roles: { id: string; title: string }[]
+  universities: { id: string; name: string }[]
+  majors: { id: string; name: string }[]
+}
 
 export default function ApplicationsPage() {
+  const [applications, setApplications] = useState<Application[]>([])
+  const [loading, setLoading] = useState(true)
+  const [masterData, setMasterData] = useState<MasterData>({ roles: [], universities: [], majors: [] })
+  
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("ALL")
+  const [stats, setStats] = useState({ PENDING: 0, REVIEWING: 0, ACCEPTED: 0, REJECTED: 0, TOTAL: 0 })
+
+  // Pagination State
+  const [page, setPage] = useState(1)
+  const [limit] = useState(10)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(0)
+
+  // Form State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [selectedRole, setSelectedRole] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    university: "",
+    major: "",
+    roleId: "",
+    semester: "",
+    notes: "",
+    portfolioUrl: ""
+  })
+
+  // Debounce Search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        fetchApplications(page, false)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [page, searchQuery, statusFilter])
+
+  useEffect(() => {
+    fetchApplications(1, true)
+    fetchMasterData()
+  }, [])
+
+  const fetchApplications = async (pageNumber = 1, fetchStats = false) => {
+    setLoading(true)
+    try {
+      const queryParams = new URLSearchParams({
+          page: pageNumber.toString(),
+          limit: limit.toString(),
+          search: searchQuery,
+          status: statusFilter === "ALL" ? "" : statusFilter,
+          includeStats: fetchStats.toString()
+      })
+      const res = await fetch(`/api/applications?${queryParams}`)
+      if (res.ok) {
+        const result = await res.json()
+        setApplications(result.data)
+        setTotalPages(result.meta.totalPages)
+        setTotalRecords(result.meta.total)
+        if (result.stats) {
+            setStats(result.stats)
+        }
+      }
+    } catch (error) {
+        console.error("Failed to fetch applications", error)
+    } finally {
+        setLoading(false)
+    }
+  }
+
+  const fetchMasterData = async () => {
+    try {
+      const res = await fetch("/api/master-data")
+      if (res.ok) {
+        const data = await res.json()
+        setMasterData(data)
+      }
+    } catch (error) {
+        console.error("Failed to fetch master data", error)
+    }
+  }
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+        setPage(newPage)
+    }
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleAddApplication = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    
+    try {
+        const res = await fetch("/api/applications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                ...formData,
+                universityName: formData.university,
+                majorName: formData.major,
+                motivation: formData.notes
+            })
+        })
+
+        if (!res.ok) {
+            const error = await res.json()
+            throw new Error(error.message || "Failed to submit")
+        }
+
+        // Refresh list AND stats
+        await fetchApplications(page, true)
+        
+        // Reset and close
+        setFormData({
+            firstName: "",
+            lastName: "",
+            email: "",
+            university: "",
+            major: "",
+            roleId: "",
+            semester: "",
+            notes: "",
+            portfolioUrl: ""
+        })
+        setIsAddModalOpen(false)
+        
+        // Success Toast
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+        Toast.fire({
+            icon: "success",
+            title: "Application submitted successfully"
+        });
+
+    } catch (error) {
+        console.error("Submission failed", error)
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error instanceof Error ? error.message : 'An unexpected error occurred',
+            confirmButtonColor: '#f97316'
+        })
+    } finally {
+        setIsSubmitting(false)
+    }
+  }
+
+  // Details Modal State
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  
+  const handleViewDetails = (app: Application) => {
+    setSelectedApplication(app)
+    setIsDetailsModalOpen(true)
+  }
+
+  const handleUpdateStatus = async (status: ApplicationStatus) => {
+    if (!selectedApplication) return
+    
+    try {
+        const res = await fetch("/api/applications", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: selectedApplication.id, status })
+        })
+
+        if (res.ok) {
+            fetchApplications(page, true) // Refresh stats
+            setIsDetailsModalOpen(false)
+            setSelectedApplication(null)
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                icon: "success",
+                title: "Status updated successfully"
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to update status',
+                confirmButtonColor: '#f97316'
+            });
+        }
+    } catch (error) {
+        console.error("Failed to update status", error)
+    }
+  }
+
+  const handleDeleteApplication = async () => {
+    if (!selectedApplication) return
+
+    const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this! This application will be permanently deleted.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#f97316",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    })
+
+    if (!result.isConfirmed) return
+
+    try {
+        const res = await fetch(`/api/applications?id=${selectedApplication.id}`, {
+            method: "DELETE"
+        })
+
+        if (res.ok) {
+            fetchApplications(page, true) // Refresh stats
+            setIsDetailsModalOpen(false)
+            setSelectedApplication(null)
+            Swal.fire({
+                title: "Deleted!",
+                text: "The application has been deleted.",
+                icon: "success",
+                confirmButtonColor: "#f97316"
+            })
+        } else {
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete application.",
+                icon: "error",
+                confirmButtonColor: "#f97316"
+            })
+        }
+    } catch (error) {
+        console.error("Failed to delete application", error)
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <Heading variant="h2">Internship Applications</Heading>
-          <Text variant="muted">Manage and review incoming applications.</Text>
-        </div>
-        <div className="flex items-center gap-2">
-           <Button variant="outline" className="bg-white">
-              <Filter className="w-4 h-4 mr-2" /> Filter
-           </Button>
-           <Button 
-              className="bg-primary text-white hover:bg-primary/90 shadow-lg shadow-orange-500/20"
-              onClick={() => setIsAddModalOpen(true)}
-           >
-              <Plus className="w-4 h-4 mr-2" /> Add Manual Application
-           </Button>
-        </div>
-      </div>
-
-      {/* Search & Statistics */}
-      <div className="grid gap-4 md:grid-cols-4">
-         <Card className="md:col-span-1 shadow-sm border-none bg-white">
-            <CardHeader className="pb-2">
-               <CardTitle className="text-sm font-medium text-muted-foreground">Total Applicants</CardTitle>
-            </CardHeader>
-            <CardContent>
-               <div className="text-2xl font-bold">142</div>
-               <p className="text-xs text-green-500 font-medium">+12 today</p>
-            </CardContent>
-         </Card>
-         <Card className="md:col-span-1 shadow-sm border-none bg-white">
-            <CardHeader className="pb-2">
-               <CardTitle className="text-sm font-medium text-muted-foreground">Pending Review</CardTitle>
-            </CardHeader>
-            <CardContent>
-               <div className="text-2xl font-bold text-orange-500">28</div>
-               <p className="text-xs text-muted-foreground">Action needed</p>
-            </CardContent>
-         </Card>
-         <Card className="md:col-span-2 shadow-sm border-none bg-white flex flex-col justify-center px-6">
-            <div className="relative">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-               <Input 
-                  placeholder="Search applicants by name, university, or role..." 
-                  className="pl-9 bg-gray-50 border-gray-200 focus:bg-white transition-all rounded-lg"
-               />
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <Heading variant="h2">Applications</Heading>
+                <Text variant="muted">Manage and review incoming internship applications.</Text>
             </div>
-         </Card>
+            <Button 
+                className="bg-primary text-white hover:bg-primary/90 shadow-lg shadow-orange-500/20"
+                onClick={() => setIsAddModalOpen(true)}
+            >
+                <Plus className="w-4 h-4 mr-2" /> Add Manual
+            </Button>
+        </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+            { label: "Pending", value: stats.PENDING, icon: Clock, color: "text-yellow-600", bg: "bg-yellow-50", border: "border-yellow-100" },
+            { label: "Reviewing", value: stats.REVIEWING, icon: AlertCircle, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
+            { label: "Accepted", value: stats.ACCEPTED, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50", border: "border-green-100" },
+            { label: "Rejected", value: stats.REJECTED, icon: XCircle, color: "text-red-600", bg: "bg-red-50", border: "border-red-100" },
+        ].map((stat, idx) => (
+            <Card key={idx} className={`border ${stat.border} shadow-sm`}>
+                <CardContent className="p-4 flex items-center justify-between">
+                    <div>
+                        <Text variant="muted" className="text-xs font-semibold uppercase tracking-wider">{stat.label}</Text>
+                        <Heading variant="h3" className="mt-1">{stat.value}</Heading>
+                    </div>
+                    <div className={`w-10 h-10 rounded-full ${stat.bg} ${stat.color} flex items-center justify-center`}>
+                        <stat.icon className="w-5 h-5" />
+                    </div>
+                </CardContent>
+            </Card>
+        ))}
       </div>
 
-      {/* Applications Table */}
+      {/* Main Content Area */}
       <Card className="border-none shadow-sm bg-white overflow-hidden">
-         <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-               <thead className="bg-gray-50 text-gray-500 uppercase font-bold text-xs">
-                  <tr>
-                     <th className="px-6 py-4">Applicant Name</th>
-                     <th className="px-6 py-4">Role Applied</th>
-                     <th className="px-6 py-4">University</th>
-                     <th className="px-6 py-4">Applied Date</th>
-                     <th className="px-6 py-4">Status</th>
-                     <th className="px-6 py-4 text-right">Actions</th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-gray-100">
-                  {APPLICATIONS.map((app) => (
-                     <tr key={app.id} className="hover:bg-gray-50/50 transition-colors group">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                           <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                 {app.name.charAt(0)}
-                              </div>
-                              {app.name}
-                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">{app.role}</td>
-                        <td className="px-6 py-4 text-gray-500">{app.university}</td>
-                        <td className="px-6 py-4 text-gray-500">{app.date}</td>
-                        <td className="px-6 py-4">
-                           <StatusBadge status={app.status} />
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                           <div className="flex justify-end gap-2">
-                              <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="View Details">
-                                 <FileText className="w-4 h-4" />
-                              </Button>
-                              <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors" title="Approve">
-                                 <CheckCircle className="w-4 h-4" />
-                              </Button>
-                              <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Reject">
-                                 <XCircle className="w-4 h-4" />
-                              </Button>
-                           </div>
-                        </td>
-                     </tr>
-                  ))}
-               </tbody>
-            </table>
-         </div>
+        
+        {/* Filters & Search */}
+        <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+             <div className="relative w-full md:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input 
+                    placeholder="Search applicants..." 
+                    className="pl-9" 
+                    value={searchQuery}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        setPage(1) // Reset page on search
+                    }}
+                />
+             </div>
+             <div className="w-full md:w-48">
+                <Select
+                    options={[
+                        { label: "All Status", value: "ALL" },
+                        { label: "Pending", value: "PENDING" },
+                        { label: "Reviewing", value: "REVIEWING" },
+                        { label: "Accepted", value: "ACCEPTED" },
+                        { label: "Rejected", value: "REJECTED" }
+                    ]}
+                    placeholder="Filter Status"
+                    value={statusFilter}
+                    onChange={(val) => {
+                        setStatusFilter(val)
+                        setPage(1) // Reset page on filter
+                    }}
+                />
+             </div>
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-gray-50">
+              <TableRow>
+                <TableHead className="px-6 py-4 font-bold text-gray-500 uppercase text-xs">Applicant</TableHead>
+                <TableHead className="px-6 py-4 font-bold text-gray-500 uppercase text-xs">Role</TableHead>
+                <TableHead className="px-6 py-4 font-bold text-gray-500 uppercase text-xs">University & Major</TableHead>
+                <TableHead className="px-6 py-4 font-bold text-gray-500 uppercase text-xs">Status</TableHead>
+                <TableHead className="px-6 py-4 font-bold text-gray-500 uppercase text-xs">Date</TableHead>
+                <TableHead className="px-6 py-4 font-bold text-gray-500 uppercase text-xs text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">Loading applications...</TableCell>
+                </TableRow>
+              ) : applications.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">No applications found.</TableCell>
+                </TableRow>
+              ) : (
+                applications.map((app) => (
+                  <TableRow key={app.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-100 last:border-0">
+                    <TableCell className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                            {app.firstName[0]}{app.lastName[0]}
+                         </div>
+                         <div>
+                            <div className="font-semibold text-gray-900">{app.firstName} {app.lastName}</div>
+                            <div className="text-xs text-gray-400">{app.email}</div>
+                         </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-sm font-medium text-gray-700">{app.role.title}</TableCell>
+                    <TableCell className="px-6 py-4">
+                        <div className="text-sm text-gray-900">{app.university.name}</div>
+                        <div className="text-xs text-gray-500">{app.major.name}</div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                        <StatusBadge status={app.status} />
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {new Date(app.createdAt).toLocaleDateString()}
+                        </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-right">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-600 hover:bg-indigo-50" onClick={() => handleViewDetails(app)}>
+                            <Eye className="w-4 h-4" />
+                        </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+            {loading ? (
+                <div className="p-8 text-center text-gray-500">Loading...</div>
+            ) : applications.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">No applications found.</div>
+            ) : (
+                <div className="divide-y divide-gray-100">
+                    {applications.map((app) => (
+                        <div key={app.id} className="p-4 flex flex-col gap-3 active:bg-gray-50 transition-colors" onClick={() => handleViewDetails(app)}>
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                                        {app.firstName[0]}{app.lastName[0]}
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-gray-900">{app.firstName} {app.lastName}</div>
+                                        <div className="text-sm text-gray-500">{app.role.title}</div>
+                                    </div>
+                                </div>
+                                <StatusBadge status={app.status} />
+                            </div>
+                            
+                            <div className="text-sm text-gray-600 pl-[3.25rem]">
+                                {app.university.name} • {app.major.name}
+                            </div>
+                            
+                            <div className="flex items-center justify-between pl-[3.25rem] pt-1">
+                                <div className="text-xs text-gray-400 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {new Date(app.createdAt).toLocaleDateString()}
+                                </div>
+                                <div className="text-xs font-medium text-indigo-600">
+                                    View Details &rarr;
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+        
+        {/* Pagination Controls */}
+        <div className="p-4 border-t border-gray-100 bg-white flex items-center justify-between">
+            <div className="text-sm text-gray-500 hidden md:block">
+                Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to <span className="font-medium">{Math.min(page * limit, totalRecords)}</span> of <span className="font-medium">{totalRecords}</span> results
+            </div>
+            <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handlePageChange(page - 1)} 
+                    disabled={page === 1}
+                    className="h-9"
+                >
+                    <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+                </Button>
+                <span className="text-sm font-medium text-gray-700 md:hidden">
+                    Page {page} / {totalPages}
+                </span>
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handlePageChange(page + 1)} 
+                    disabled={page === totalPages || totalPages === 0}
+                    className="h-9"
+                >
+                    Next <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+            </div>
+        </div>
       </Card>
 
-      {/* Manual Entry Modal */}
+      {/* Add Application Modal */}
       <Modal 
-         isOpen={isAddModalOpen} 
-         onClose={() => setIsAddModalOpen(false)} 
-         title="Add Manual Application"
-         description="Manually enter details for an applicant (e.g. from email)."
-         maxWidth="max-w-2xl"
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Application"
       >
-         <form className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">First Name</label>
-                  <Input placeholder="John" className="bg-gray-50" />
-               </div>
-               <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Last Name</label>
-                  <Input placeholder="Doe" className="bg-gray-50" />
-               </div>
-            </div>
+        <form onSubmit={handleAddApplication} className="space-y-4">
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">First Name</label>
+                    <Input 
+                        placeholder="e.g. John" 
+                        value={formData.firstName}
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Last Name</label>
+                    <Input 
+                        placeholder="e.g. Doe" 
+                        value={formData.lastName}
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        required
+                    />
+                </div>
+             </div>
+
+             <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Email Address</label>
+                <Input 
+                    type="email" 
+                    placeholder="john@example.com" 
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    required
+                />
+             </div>
+
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">University</label>
+                    <Input 
+                        placeholder="e.g. Binus University" 
+                        value={formData.university}
+                        onChange={(e) => handleInputChange('university', e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Major</label>
+                    <Input 
+                        placeholder="e.g. Computer Science" 
+                        value={formData.major}
+                        onChange={(e) => handleInputChange('major', e.target.value)}
+                        required
+                    />
+                </div>
+             </div>
 
             <div className="space-y-2">
-               <label className="text-sm font-medium text-gray-700">Email Address</label>
-               <Input type="email" placeholder="john.doe@example.com" className="bg-gray-50" />
-            </div>
+                <label className="text-sm font-medium text-gray-700">Position Role</label>
+                <Select
+                    options={masterData.roles.map(r => ({ label: r.title, value: r.id }))}
+                    placeholder="Select Role"
+                    value={formData.roleId}
+                    onChange={(val) => handleInputChange('roleId', val)}
+                    searchable
+                />
+             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">University</label>
-                  <Input placeholder="University Name" className="bg-gray-50" />
-               </div>
-               <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Major</label>
-                  <Input placeholder="Computer Science" className="bg-gray-50" />
-               </div>
-            </div>
+             <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Semester</label>
+                <Input 
+                    placeholder="e.g. 6" 
+                    value={formData.semester}
+                    onChange={(e) => handleInputChange('semester', e.target.value)}
+                    required
+                />
+             </div>
 
-            <Select 
-               label="Role Applied For"
-               placeholder="Select a position..."
-               value={selectedRole}
-               onChange={setSelectedRole}
-               options={[
-                  { label: "Frontend Developer Intern", value: "frontend", icon: Code },
-                  { label: "UI/UX Designer Intern", value: "uiux", icon: PenTool },
-                  { label: "Content Creator Intern", value: "content", icon: Video },
-                  { label: "Backend Developer Intern", value: "backend", icon: Server },
-               ]}
-            />
+             <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Notes / Motivation</label>
+                <Input 
+                    placeholder="Brief qualification..." 
+                    value={formData.notes}
+                    onChange={(e) => handleInputChange('notes', e.target.value)}
+                />
+             </div>
 
-            <div className="space-y-2">
-               <label className="text-sm font-medium text-gray-700">Motivation / Notes</label>
-               <textarea className="w-full min-h-[80px] rounded-md border border-input bg-gray-50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="Applicant's motivation or HR notes..." />
-            </div>
+             <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Portfolio URL</label>
+                <Input 
+                    placeholder="https://..." 
+                    value={formData.portfolioUrl}
+                    onChange={(e) => handleInputChange('portfolioUrl', e.target.value)}
+                />
+             </div>
 
-            <div className="space-y-4">
-               <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-2">Resume / CV <span className="text-red-500">*</span></label>
-                  <label className="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center gap-2 hover:bg-gray-50 hover:border-primary/50 transition-all cursor-pointer group">
-                     <input type="file" className="hidden" accept=".pdf,.doc,.docx" />
-                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-orange-100 group-hover:text-primary transition-colors">
-                        <Upload className="w-5 h-5 text-gray-400 group-hover:text-primary" />
-                     </div>
-                     <p className="text-sm font-medium text-gray-700 text-center">Click to upload or drag and drop</p>
-                     <p className="text-xs text-gray-400">PDF, DOCX up to 10MB</p>
-                  </label>
-               </div>
-               
-               <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Portfolio URL <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span></label>
-                  <Input placeholder="https://..." className="bg-gray-50" />
-               </div>
-            </div>
-
-            <div className="pt-4 flex justify-end gap-2">
-               <Button variant="outline" type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-               <Button type="submit" className="bg-primary text-white hover:bg-primary/90">Add Applicant</Button>
-            </div>
-         </form>
+             <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)}>
+                    Cancel
+                </Button>
+                <Button type="submit" className="bg-primary text-white" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Add Application"}
+                </Button>
+             </div>
+        </form>
       </Modal>
+
+      {/* Application Details Modal */}
+      <Modal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        title="Application Details"
+      >
+        {selectedApplication && (
+            <div className="space-y-6">
+                {/* Header Profile */}
+                <div className="flex items-center gap-4 pb-6 border-b border-gray-100">
+                    <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl font-bold">
+                        {selectedApplication.firstName[0]}{selectedApplication.lastName[0]}
+                    </div>
+                    <div>
+                        <Heading variant="h3">{selectedApplication.firstName} {selectedApplication.lastName}</Heading>
+                        <Text variant="muted">{selectedApplication.email}</Text>
+                        <div className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {selectedApplication.role.title}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Status Selector - Dropdown */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-gray-900 block">Change Status</label>
+                  <Select
+                        options={[
+                            { label: "Pending", value: "PENDING" },
+                            { label: "Reviewing", value: "REVIEWING" },
+                            { label: "Accepted", value: "ACCEPTED" },
+                            { label: "Rejected", value: "REJECTED" }
+                        ]}
+                        placeholder="Select Status"
+                        value={selectedApplication.status}
+                        onChange={(val) => handleUpdateStatus(val as ApplicationStatus)}
+                    />
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-6 pt-2">
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase font-semibold">University</label>
+                        <div className="text-sm font-medium text-gray-900 mt-1">{selectedApplication.university.name}</div>
+                    </div>
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase font-semibold">Major</label>
+                        <div className="text-sm font-medium text-gray-900 mt-1">{selectedApplication.major.name}</div>
+                    </div>
+                    <div className="col-span-2">
+                        <label className="text-xs text-gray-500 uppercase font-semibold">Applied Date</label>
+                        <div className="text-sm font-medium text-gray-900 mt-1">{new Date(selectedApplication.createdAt).toLocaleString()}</div>
+                    </div>
+                    {selectedApplication.portfolioUrl && (
+                        <div className="col-span-2">
+                            <label className="text-xs text-gray-500 uppercase font-semibold">Portfolio</label>
+                            <a 
+                                href={selectedApplication.portfolioUrl}
+                                target="_blank"
+                                rel="noopener noreferrer" 
+                                className="block text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline mt-1 truncate"
+                            >
+                                {selectedApplication.portfolioUrl}
+                            </a>
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer Actions */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+                    <Button variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleDeleteApplication}>
+                        <XCircle className="w-4 h-4 mr-2" /> Delete Application
+                    </Button>
+                    <Button variant="outline" onClick={() => setIsDetailsModalOpen(false)}>
+                        Close
+                    </Button>
+                </div>
+            </div>
+        )}
+      </Modal>
+
     </div>
   )
 }
 
-function StatusBadge({ status }: { status: string }) {
-   const styles: Record<string, string> = {
-      PENDING: "bg-yellow-100 text-yellow-700 border-yellow-200",
-      REVIEWED: "bg-blue-100 text-blue-700 border-blue-200",
-      ACCEPTED: "bg-green-100 text-green-700 border-green-200",
-      REJECTED: "bg-red-100 text-red-700 border-red-200",
-   }
-   
-   return (
-      <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${styles[status] || styles.PENDING}`}>
-         {status}
-      </span>
-   )
+function StatusBadge({ status }: { status: ApplicationStatus }) {
+    const styles = {
+        PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        REVIEWING: "bg-blue-100 text-blue-800 border-blue-200",
+        ACCEPTED: "bg-green-100 text-green-800 border-green-200",
+        REJECTED: "bg-red-100 text-red-800 border-red-200"
+    }
+
+    const icons = {
+        PENDING: Clock,
+        REVIEWING: AlertCircle,
+        ACCEPTED: CheckCircle,
+        REJECTED: XCircle
+    }
+
+    const Icon = icons[status]
+
+    return (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status]}`}>
+            <Icon className="w-3 h-3 mr-1" />
+            {status}
+        </span>
+    )
 }

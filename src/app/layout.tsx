@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Poppins, Red_Hat_Display } from "next/font/google"; // Import Fonts
+import { Poppins, Red_Hat_Display } from "next/font/google";
 import "./globals.css";
+import AuthProvider from "@/components/providers/AuthProvider";
 
 import { SITE_CONFIG } from "@/lib/constants";
 
@@ -20,71 +21,6 @@ const redHatDisplay = Red_Hat_Display({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://ucentric.id"), 
-  title: {
-    default: "UCentric - Digital Transformation Partner",
-    template: `%s | UCentric`,
-  },
-  description: "Leading software house specializing in enterprise digital transformation, AI solutions, and custom software development. We build the future of your business.",
-  keywords: [
-    "Software House", 
-    "Digital Transformation", 
-    "AI Solutions", 
-    "Web Development", 
-    "Mobile App Development", 
-    "Enterprise Software", 
-    "IT Consultant", 
-    "Indonesia Technology"
-  ],
-  authors: [
-    {
-      name: "UCentric Team",
-      url: "https://ucentric.id",
-    },
-  ],
-  creator: "UCentric",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://ucentric.id",
-    title: "UCentric - Digital Transformation Partner",
-    description: "Accelerating business growth through innovative technology solutions. From AI to Enterprise Systems.",
-    siteName: "UCentric",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "UCentric - Digital Future",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "UCentric - Digital Transformation Partner",
-    description: "Building the future of digital enterprise. Explore our solutions.",
-    images: ["/og-image.jpg"],
-    creator: "@ucentric_id",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -95,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${redHatDisplay.variable} min-h-screen bg-background font-sans antialiased`}
       >
-        {children}
+        <AuthProvider>
+            {children}
+        </AuthProvider>
       </body>
     </html>
   );
