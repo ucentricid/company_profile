@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight } from "lucide-react" // Added ArrowRight
+import { Menu, X, ArrowRight } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
@@ -11,6 +12,8 @@ import { Button } from "@/components/ui/Button"
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -19,6 +22,32 @@ export function Header() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Logic: If on homepage ('/') and link is a hash link ('/#...'), handle scroll manually
+    if (pathname === "/" && href.startsWith("/#")) {
+        e.preventDefault()
+        const targetId = href.replace("/#", "")
+        const elem = document.getElementById(targetId)
+        
+        if (elem) {
+            // Close mobile menu if open
+            setIsMenuOpen(false)
+            
+            // Smooth scroll
+            elem.scrollIntoView({ behavior: "smooth" })
+            
+            // Update URL hash without reload
+            window.history.pushState(null, "", href)
+        }
+    } else if (href.startsWith("/#") && pathname !== "/") {
+        // If not on homepage, let Next.js handle it (it will navigate to '/' then scroll)
+        setIsMenuOpen(false)
+    } else {
+        // Normal navigation
+        setIsMenuOpen(false)
+    }
+  }
 
   return (
     <>
@@ -40,7 +69,7 @@ export function Header() {
           )}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group h-full">
+          <Link href="/" className="flex items-center gap-3 group h-full" onClick={(e) => handleNavClick(e, "/")}>
             <div className={cn(
                "relative flex items-center justify-center rounded-full transition-transform group-hover:scale-105",
                isScrolled ? "w-10 h-10 md:w-12 md:h-12" : "w-14 h-14 md:w-20 md:h-20"
@@ -59,6 +88,7 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className={cn(
                   "relative px-4 py-1.5 text-sm font-medium transition-all duration-300 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800",
                   isScrolled ? "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100" : "text-muted-foreground hover:text-primary"
@@ -71,7 +101,7 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2 px-1">
-            <Link href="/contact">
+            <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
                {isScrolled ? (
                   <Button size="sm" className="rounded-full h-9 px-4 text-xs">
                      Contact
@@ -127,7 +157,7 @@ export function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={(e) => handleNavClick(e, item.href)}
                     className="flex items-center justify-between p-3 rounded-xl text-base font-medium text-muted-foreground transition-all hover:bg-muted hover:text-primary hover:pl-4"
                   >
                     {item.title}
