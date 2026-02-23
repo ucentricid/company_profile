@@ -3,96 +3,97 @@ import { db } from "@/lib/db"
 import { z } from "zod"
 
 const applicationSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email"),
-  universityName: z.string().min(1, "University is required"),
-  majorName: z.string().min(1, "Major is required"),
-  semester: z.string().min(1, "Semester is required"),
-  roleId: z.string().min(1, "Role is required"),
-  motivation: z.string().min(1, "Motivation is required"),
-  portfolioUrl: z.string().optional().or(z.literal("")),
-  cvUrl: z.string().optional().or(z.literal("")),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email"),
+    universityName: z.string().min(1, "University is required"),
+    majorName: z.string().min(1, "Major is required"),
+    semester: z.string().min(1, "Semester is required"),
+    roleId: z.string().min(1, "Role is required"),
+    motivation: z.string().min(1, "Motivation is required"),
+    portfolioUrl: z.string().optional().or(z.literal("")),
+    cvUrl: z.string().optional().or(z.literal("")),
 })
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json()
-    const { 
-      firstName, 
-      lastName, 
-      email, 
-      universityName, 
-      majorName, 
-      semester, 
-      roleId, 
-      motivation, 
-      portfolioUrl, 
-      cvUrl 
-    } = applicationSchema.parse(body)
-
-    // Check for existing application for this role
-    const existingApplication = await db.internshipApplication.findFirst({
-        where: {
+    try {
+        const body = await req.json()
+        const {
+            firstName,
+            lastName,
             email,
-            roleId
-        }
-    })
+            universityName,
+            majorName,
+            semester,
+            roleId,
+            motivation,
+            portfolioUrl,
+            cvUrl
+        } = applicationSchema.parse(body)
 
-    if (existingApplication) {
+        // Check for existing application for this role
+        const existingApplication = await db.internshipApplication.findFirst({
+            where: {
+                email,
+                roleId
+            }
+        })
+
+        if (existingApplication) {
+            return NextResponse.json(
+                { message: "This email has already applied for this role." },
+                { status: 409 } // Conflict
+            )
+        }
+
+        const application = await db.internshipApplication.create({
+            data: {
+                id: crypto.randomUUID(),
+                firstName,
+                lastName,
+                email,
+                semester,
+                motivation,
+                portfolioUrl: portfolioUrl || null,
+                cvUrl: cvUrl || null,
+                InternshipRole: {
+                    connect: { id: roleId }
+                },
+                University: {
+                    connectOrCreate: {
+                        where: { name: universityName },
+                        create: { id: crypto.randomUUID(), name: universityName }
+                    }
+                },
+                Major: {
+                    connectOrCreate: {
+                        where: { name: majorName },
+                        create: { id: crypto.randomUUID(), name: majorName }
+                    }
+                },
+                updatedAt: new Date()
+            }
+        })
+
         return NextResponse.json(
-            { message: "This email has already applied for this role." },
-            { status: 409 } // Conflict
+            { message: "Application submitted successfully", applicationId: application.id },
+            { status: 201 }
+        )
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return NextResponse.json(
+                { message: "Validation failed", errors: (error as any).errors },
+                { status: 400 }
+            )
+        }
+
+        console.error("Failed to submit application:", error)
+        return NextResponse.json(
+            { message: "Failed to submit application" },
+            { status: 500 }
         )
     }
-
-    const application = await db.internshipApplication.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        semester,
-        motivation,
-        portfolioUrl: portfolioUrl || null,
-        cvUrl: cvUrl || null,
-        role: {
-          connect: { id: roleId }
-        },
-        university: {
-          connectOrCreate: {
-            where: { name: universityName },
-            create: { name: universityName }
-          }
-        },
-        major: {
-          connectOrCreate: {
-            where: { name: majorName },
-            create: { name: majorName }
-          }
-        },
-        status: "PENDING"
-      }
-    })
-
-    return NextResponse.json(
-      { message: "Application submitted successfully", applicationId: application.id },
-      { status: 201 }
-    )
-
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { message: "Validation failed", errors: (error as any).errors },
-        { status: 400 }
-      )
-    }
-
-    console.error("Failed to submit application:", error)
-    return NextResponse.json(
-      { message: "Failed to submit application" },
-      { status: 500 }
-    )
-  }
 }
 
 export async function GET(req: Request) {
@@ -107,7 +108,7 @@ export async function GET(req: Request) {
 
         // Build Where Clause
         const where: any = {}
-        
+
         if (status && status !== "ALL") {
             where.status = status
         }
@@ -125,9 +126,9 @@ export async function GET(req: Request) {
             db.internshipApplication.findMany({
                 where,
                 include: {
-                    role: true,
-                    university: true,
-                    major: true
+                    InternshipRole: true,
+                    University: true,
+                    Major: true
                 },
                 orderBy: {
                     createdAt: 'desc'
@@ -150,7 +151,12 @@ export async function GET(req: Request) {
         }
 
         const results = await Promise.all(queries)
-        const applications = results[0]
+        const applications = results[0].map((app: any) => ({
+            ...app,
+            role: app.InternshipRole,
+            university: app.University,
+            major: app.Major
+        }))
         const total = results[1]
         const statusGroups = includeStats ? results[2] : []
 
@@ -161,7 +167,7 @@ export async function GET(req: Request) {
                 acc[curr.status] = curr._count.status
                 return acc
             }, {} as Record<string, number>)
-            
+
             stats = {
                 PENDING: statsMap["PENDING"] || 0,
                 REVIEWING: statsMap["REVIEWING"] || 0,
@@ -204,7 +210,7 @@ export async function PUT(req: Request) {
 
         const updatedApplication = await db.internshipApplication.update({
             where: { id },
-            data: { status }
+            data: { status, updatedAt: new Date() }
         })
 
         return NextResponse.json(updatedApplication)
