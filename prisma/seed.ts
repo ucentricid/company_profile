@@ -34,7 +34,11 @@ async function main() {
 
   for (const role of INITIAL_ROLES) {
     const createdRole = await prisma.internshipRole.create({
-      data: role,
+      data: {
+        ...role,
+        id: crypto.randomUUID(),
+        updatedAt: new Date()
+      },
     })
     console.log(`Created role with id: ${createdRole.id}`)
   }

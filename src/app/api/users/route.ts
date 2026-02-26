@@ -76,6 +76,7 @@ export async function POST(req: Request) {
 
     const newUser = await db.user.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         email,
         password: hashedPassword,
@@ -85,9 +86,9 @@ export async function POST(req: Request) {
 
     const { password: _, ...userWithoutPassword } = newUser
 
-    return NextResponse.json({ 
-      message: "User created successfully", 
-      data: userWithoutPassword 
+    return NextResponse.json({
+      message: "User created successfully",
+      data: userWithoutPassword
     }, { status: 201 })
 
   } catch (error) {
@@ -113,19 +114,19 @@ export async function PUT(req: Request) {
     if (email) updateData.email = email
     if (role) updateData.role = role
     if (password) {
-        updateData.password = await hash(password, 10)
+      updateData.password = await hash(password, 10)
     }
 
     const updatedUser = await db.user.update({
-        where: { id },
-        data: updateData
+      where: { id },
+      data: updateData
     })
 
     const { password: _, ...userWithoutPassword } = updatedUser
 
     return NextResponse.json({
-        message: "User updated successfully",
-        data: userWithoutPassword
+      message: "User updated successfully",
+      data: userWithoutPassword
     })
 
   } catch (error) {
@@ -138,32 +139,32 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-    try {
-        if (!await isAdmin()) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 403 })
-        }
-
-        const { searchParams } = new URL(req.url)
-        const id = searchParams.get("id")
-
-        if (!id) {
-            return NextResponse.json({ message: "User ID is required" }, { status: 400 })
-        }
-
-        // Prevent deleting self (optional safety)
-        const session = await getServerSession(authOptions)
-        if (session?.user?.id === id) {
-            return NextResponse.json({ message: "Cannot delete your own account" }, { status: 400 })
-        }
-
-        await db.user.delete({
-            where: { id }
-        })
-
-        return NextResponse.json({ message: "User deleted successfully" })
-
-    } catch (error) {
-        console.error("Failed to delete user:", error)
-        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+  try {
+    if (!await isAdmin()) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 })
     }
+
+    const { searchParams } = new URL(req.url)
+    const id = searchParams.get("id")
+
+    if (!id) {
+      return NextResponse.json({ message: "User ID is required" }, { status: 400 })
+    }
+
+    // Prevent deleting self (optional safety)
+    const session = await getServerSession(authOptions)
+    if (session?.user?.id === id) {
+      return NextResponse.json({ message: "Cannot delete your own account" }, { status: 400 })
+    }
+
+    await db.user.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({ message: "User deleted successfully" })
+
+  } catch (error) {
+    console.error("Failed to delete user:", error)
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+  }
 }

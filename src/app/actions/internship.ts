@@ -29,29 +29,30 @@ export async function createApplication(formData: FormData) {
 
     await prisma.internshipApplication.create({
       data: {
+        id: crypto.randomUUID(),
         firstName,
         lastName,
         email,
-        university: {
+        University: {
           connectOrCreate: {
             where: { name: university },
-            create: { name: university }
+            create: { id: crypto.randomUUID(), name: university }
           }
         },
-        major: {
+        Major: {
           connectOrCreate: {
             where: { name: major },
-            create: { name: major }
+            create: { id: crypto.randomUUID(), name: major }
           }
         },
         semester: "N/A",
-        role: {
+        InternshipRole: {
           connect: { id: roleId }
         },
         motivation,
         cvUrl,
         portfolioUrl: formData.get("portfolioUrl") as string || null,
-        status: "PENDING"
+        updatedAt: new Date()
       }
     })
 

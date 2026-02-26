@@ -7,32 +7,165 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-model InternshipRole {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  department  String
-  type        String
-  location    String
-  isActive    Boolean  @default(true)
-  requirements String[]
-  responsibilities String[]
-  applications InternshipApplication[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@unique([provider, providerAccountId])
 }
 
-model University {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  applications InternshipApplication[]
+model InternshipApplication {
+  id             String            @id
+  firstName      String
+  lastName       String
+  email          String
+  universityId   String
+  majorId        String
+  semester       String
+  portfolioUrl   String?
+  motivation     String
+  cvUrl          String?
+  roleId         String
+  status         ApplicationStatus @default(PENDING)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime
+  Major          Major             @relation(fields: [majorId], references: [id])
+  InternshipRole InternshipRole    @relation(fields: [roleId], references: [id])
+  University     University        @relation(fields: [universityId], references: [id])
+
+  @@index([createdAt])
+  @@index([email])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([status])
+}
+
+model InternshipRole {
+  id                    String                  @id
+  title                 String
+  department            String
+  type                  String
+  location              String
+  isActive              Boolean                 @default(true)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  slug                  String                  @unique
+  requirements          String[]
+  responsibilities      String[]
+  InternshipApplication InternshipApplication[]
 }
 
 model Major {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  applications InternshipApplication[]
+  id                    String                  @id
+  name                  String                  @unique
+  InternshipApplication InternshipApplication[]
+}
+
+model PaymentAccount {
+  id            String   @id
+  userId        String
+  type          String
+  providerName  String
+  accountNumber String
+  accountName   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  User          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model University {
+  id                    String                  @id
+  name                  String                  @unique
+  InternshipApplication InternshipApplication[]
+}
+
+model User {
+  id             String           @id
+  name           String?
+  email          String?          @unique
+  emailVerified  DateTime?
+  image          String?
+  role           String?          @default("user")
+  password       String?
+  referral_code  String?          @db.VarChar
+  status         Boolean          @default(false)
+  Account        Account[]
+  PaymentAccount PaymentAccount[]
+  Session        Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model payments {
+  id             Int          @id @default(autoincrement())
+  order_id       String       @unique @db.VarChar(255)
+  name           String       @db.VarChar(255)
+  email          String       @db.VarChar(255)
+  phone          String       @db.VarChar(20)
+  amount         Decimal      @default(145000) @db.Decimal(12, 2)
+  status         String?      @default("pending") @db.VarChar(50)
+  midtrans_token String?      @db.VarChar(255)
+  created_at     DateTime?    @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime?    @default(now()) @db.Timestamptz(6)
+  referral_code  String?      @db.VarChar(255)
+  withdrawId     String?      @db.VarChar(255)
+  withdrawals    withdrawals? @relation(fields: [withdrawId], references: [id])
+}
+
+model ukasir_token {
+  token_number  String    @id @db.VarChar(255)
+  register_date DateTime? @default(now()) @db.Timestamp(6)
+  status_active Boolean?  @default(true)
+  device_id     String?   @db.VarChar(255)
+  device_name   String?   @db.VarChar(255)
+  device_type   String?   @db.VarChar(255)
+  order_id      String?   @db.VarChar(255)
+  name          String?   @db.VarChar(255)
+  email         String?   @db.VarChar(255)
+  phone         String?   @db.VarChar(20)
+  referral_code String?   @db.VarChar(255)
+}
+
+model withdrawals {
+  id             String     @id
+  amount         Int
+  status         String     @default("pending")
+  user_email     String
+  bank_name      String
+  account_number String
+  account_name   String
+  created_at     DateTime   @default(now())
+  updated_at     DateTime
+  payments       payments[]
+
+  @@index([user_email])
 }
 
 enum ApplicationStatus {
@@ -42,137 +175,4 @@ enum ApplicationStatus {
   OFFERED
   REJECTED
   ACCEPTED
-}
-
-model InternshipApplication {
-  id          String   @id @default(cuid())
-  firstName   String
-  lastName    String
-  email       String
-  
-  universityId String
-  university   University @relation(fields: [universityId], references: [id])
-  
-  majorId      String
-  major        Major      @relation(fields: [majorId], references: [id])
-  
-  semester    String
-  portfolioUrl String?
-  motivation  String   @db.Text
-  cvUrl       String?
-  
-  roleId      String
-  role        InternshipRole @relation(fields: [roleId], references: [id])
-  
-  status      ApplicationStatus   @default(PENDING)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([status])
-  @@index([email])
-  @@index([firstName])
-  @@index([lastName])
-  @@index([createdAt])
-}
-
-// NextAuth Models
-
-model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          String?   @default("user")
-  password      String?
-  accounts      Account[]
-  sessions      Session[]
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-
-// CMS Models
-
-model Article {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  excerpt     String
-  content     String   @db.Text
-  image       String
-  category    String
-  author      String?
-  isPublished Boolean  @default(false)
-  publishedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Project {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String   @db.Text
-  content     String?  @db.Text
-  client      String?
-  image       String
-  category    String
-  tags        String[]
-  stats       String?
-  link        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Service {
-  id          String   @id @default(cuid())
-  title       String
-  description String   @db.Text
-  icon        String
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Testimonial {
-  id          String   @id @default(cuid())
-  name        String
-  role        String
-  company     String
-  content     String   @db.Text
-  image       String?
-  rating      Int      @default(5)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
