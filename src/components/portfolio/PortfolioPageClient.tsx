@@ -14,73 +14,10 @@ import { cn } from "@/lib/utils"
 const CATEGORIES = ["Company Projects", "Ucentric Academy"] as const
 type Category = typeof CATEGORIES[number]
 
-const PROJECTS = [
-   {
-      id: 1,
-      title: "E-Commerce Super App",
-      category: "Company Projects",
-      client: "Retail Giant Indonesia",
-      image: "bg-gradient-to-br from-blue-600 to-indigo-700", // Placeholder
-      tags: ["Mobile App", "High Scale", "Flutter"],
-      description: "A complete overhaul of the digital shopping experience for 5M+ users, featuring real-time inventory and AI recommendations.",
-      stats: "5M+ Downloads"
-   },
-   {
-      id: 2,
-      title: "Smart Factory IoT Dashboard",
-      category: "Company Projects",
-      client: "Manufaktur Tbk",
-      image: "bg-gradient-to-br from-emerald-600 to-teal-700", // Placeholder
-      tags: ["Web Dashboard", "IoT", "Real-time"],
-      description: "Monitoring 500+ machines in real-time to predict maintenance needs and optimize production output.",
-      stats: "20% Efficiency"
-   },
-   {
-      id: 3,
-      title: "Fintech Core Banking",
-      category: "Company Projects",
-      client: "National Bank",
-      image: "bg-gradient-to-br from-indigo-900 to-slate-800", // Placeholder
-      tags: ["Backend", "Security", "Microservices"],
-      description: "Modernizing legacy banking infrastructure to support high-frequency digital transactions with bank-grade security.",
-      stats: "99.99% Uptime"
-   },
-   {
-      id: 101,
-      title: "AR Campus Tour",
-      category: "Ucentric Academy",
-      author: "Intern Batch #12",
-      image: "bg-gradient-to-br from-orange-400 to-pink-500",
-      tags: ["Augmented Reality", "Mobile", "Unity"],
-      description: "An experimental AR app allowing new students to explore the campus and find classrooms using their phone camera.",
-      stats: "Best Innovation"
-   },
-   {
-      id: 102,
-      title: "Sentiment Analysis Bot",
-      category: "Ucentric Academy",
-      author: "Intern Batch #11",
-      image: "bg-gradient-to-br from-violet-500 to-fuchsia-500",
-      tags: ["AI/ML", "Python", "NLP"],
-      description: "A tool that analyzes social media mentions to determine brand sentiment automatically.",
-      stats: "92% Accuracy"
-   },
-   {
-      id: 103,
-      title: "Gamified Learning Platform",
-      category: "Ucentric Academy",
-      author: "Intern Batch #13",
-      image: "bg-gradient-to-br from-cyan-400 to-blue-500",
-      tags: ["Web", "Gamification", "React"],
-      description: "Making learning fun for elementary students through interactive quizzes and reward systems.",
-      stats: "Top Design"
-   }
-]
-
-export default function PortfolioPageClient() {
+export default function PortfolioPageClient({ initialProjects = [] }: { initialProjects?: any[] }) {
    const [activeTab, setActiveTab] = React.useState<Category>("Company Projects")
 
-   const filteredProjects = PROJECTS.filter(p => p.category === activeTab)
+   const filteredProjects = initialProjects.filter(p => p.category === activeTab)
 
    return (
       <main className="min-h-screen pt-24 pb-12 bg-background relative selection:bg-primary/20 selection:text-primary">
@@ -174,7 +111,7 @@ export default function PortfolioPageClient() {
    )
 }
 
-function ProjectCard({ project }: { project: typeof PROJECTS[0] }) {
+function ProjectCard({ project }: { project: any }) {
    const isCompany = project.category === "Company Projects"
 
    return (
@@ -201,7 +138,7 @@ function ProjectCard({ project }: { project: typeof PROJECTS[0] }) {
 
             <CardContent className="p-6">
                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tags.map(tag => (
+                  {(project.tags || []).map((tag: string) => (
                      <span key={tag} className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-secondary text-secondary-foreground border border-border/50">
                         {tag}
                      </span>

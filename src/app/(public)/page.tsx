@@ -8,24 +8,45 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { Blog } from "@/components/sections/Blog";
 import type { Metadata } from 'next'
 import { CareerCTA } from "@/components/sections/CareerCTA";
+import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Home",
   description: "Your Partner in IT Digital Product Development",
 }
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default async function Home() {
+  // Fetch static settings
+  const settingsDb = await db.siteSetting.findMany();
+  const settings = settingsDb.reduce((acc, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+  }, {} as Record<string, string>);
+
+  // Fetch list data
+  const servicesData = await db.service.findMany({ where: { isActive: true }, orderBy: { order: "asc" } });
+  const teamData = await db.teamMember.findMany({ where: { isActive: true }, orderBy: { order: "asc" } });
+  const testimonialsData = await db.testimonial.findMany({ where: { isActive: true }, orderBy: { order: "asc" } });
+  
+  const featuredProjectsData = await db.companyProject.findMany({
+    where: { isActive: true, isFeatured: true },
+    orderBy: { createdAt: "desc" },
+    take: 3
+  });
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
-       <Hero />
-       <Services />
+       <Hero settings={settings} />
+       <Services data={servicesData} />
        <ProductShowcase />
-       <PortfolioPreview />
-       <About />
-       <Team />
-       <Testimonials />
+       <PortfolioPreview data={featuredProjectsData} />
+       <About settings={settings} />
+       <Team data={teamData} />
+       <Testimonials data={testimonialsData} />
        <Blog />
-       <CareerCTA />
+       <CareerCTA settings={settings} />
     </main>
   );
 }

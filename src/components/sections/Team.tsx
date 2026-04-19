@@ -8,44 +8,46 @@ import { Heading, Text } from "@/components/ui/Typography"
 import { Card, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 
-const team = [
+const defaultTeam = [
   {
     name: "Riand",
     role: "CEO",
-    bio: "Visionary leader with 15+ years in tech innovation.",
+    linkedinUrl: null,
     image: null, // Placeholder
   },
   {
     name: "Yoga",
     role: "COO",
-    bio: "Operational excellence and strategic growth expert.",
+    linkedinUrl: null,
     image: null,
   },
   {
     name: "Fadly",
     role: "CRO",
-    bio: "Driving revenue streams and business partnerships.",
+    linkedinUrl: null,
     image: null,
   },
   {
     name: "Aby",
     role: "CTO",
-    bio: "Architecting scalable and robust technical solutions.",
+    linkedinUrl: null,
     image: null,
   },
   {
     name: "Dedi",
     role: "CIO",
-    bio: "Ensuring information security and data integrity.",
+    linkedinUrl: null,
     image: null,
   },
 ]
 
-export function Team() {
+export function Team({ data }: { data?: any[] }) {
+  const teamToRender = data && data.length > 0 ? data : defaultTeam;
+
   return (
     <Section id="team" className="bg-[#FFF8F5] relative overflow-hidden">
       {/* Decorative Background - Simplified */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-100/30 blur-[100px] rounded-full opacity-30 -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-orange-100/30 blur-[100px] rounded-full opacity-30 -z-10" />
 
       <div className="mb-16 flex flex-col items-center text-center space-y-4 relative z-10">
         <motion.div
@@ -62,13 +64,13 @@ export function Team() {
               Meet the <span className="text-orange-600">Minds</span>
            </Heading>
            <Text variant="muted" className="max-w-2xl mx-auto text-lg text-zinc-600">
-              The experts behind Ucentric's mission to engineer digital impact.
+              The experts behind Ucentric&apos;s mission to engineer digital impact.
            </Text>
         </motion.div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto relative z-10 px-4">
-        {team.map((member, index) => (
+        {teamToRender.map((member, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 20 }}
@@ -80,28 +82,27 @@ export function Team() {
             {/* Black Card with White Text */}
             <Card className="h-full border-none bg-zinc-900 shadow-xl shadow-orange-500/5 hover:bg-zinc-800 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 group overflow-hidden">
               <div className="relative aspect-square w-full overflow-hidden bg-zinc-800 mb-0">
-                 {/* Image Placeholder - Replace with actual Image component */}
-                 <div className="absolute inset-0 flex items-center justify-center text-zinc-600 group-hover:scale-105 transition-transform duration-500">
-                    <User className="w-32 h-32" />
-                 </div>
+                 {member.image ? (
+                   <img src={member.image} alt={member.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                 ) : (
+                   <div className="absolute inset-0 flex items-center justify-center text-zinc-600 group-hover:scale-105 transition-transform duration-500">
+                      <User className="w-32 h-32" />
+                   </div>
+                 )}
                  
                  {/* Social Overlay */}
                  <div className="absolute inset-0 bg-orange-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 backdrop-blur-sm">
-                    <Button size="icon" variant="glass" className="rounded-full hover:bg-white hover:text-orange-600 border-none bg-white/20 text-white">
-                       <Linkedin className="w-5 h-5" />
-                    </Button>
-                    <Button size="icon" variant="glass" className="rounded-full hover:bg-white hover:text-orange-600 border-none bg-white/20 text-white">
-                       <Twitter className="w-5 h-5" />
-                    </Button>
+                    {member.linkedinUrl && (
+                      <Button size="icon" variant="glass" className="rounded-full hover:bg-white hover:text-orange-600 border-none bg-white/20 text-white" asChild>
+                         <a href={member.linkedinUrl} target="_blank" rel="noopener noreferrer"><Linkedin className="w-5 h-5" /></a>
+                      </Button>
+                    )}
                  </div>
               </div>
               
               <CardContent className="p-6 text-center relative">
                  <h3 className="text-xl font-bold text-white mb-1 group-hover:text-orange-500 transition-colors">{member.name}</h3>
                  <p className="text-sm font-semibold text-orange-500 uppercase tracking-wider mb-3">{member.role}</p>
-                 <p className="text-zinc-400 text-sm leading-relaxed">
-                    {member.bio}
-                 </p>
               </CardContent>
             </Card>
           </motion.div>

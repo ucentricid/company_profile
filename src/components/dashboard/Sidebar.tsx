@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { LayoutDashboard, Users, LogOut, ChevronRight, ChevronDown, X, Briefcase, Shield, CreditCard, Activity, Wallet } from "lucide-react"
+import { LayoutDashboard, Users, LogOut, ChevronRight, ChevronDown, X, Briefcase, Shield, CreditCard, Activity, Wallet, FileText, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
@@ -21,6 +21,44 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
         title: "Overview",
         items: [
             { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+            { 
+                label: "Portfolio", 
+                icon: Briefcase,
+                href: "#",
+                subItems: [
+                    { label: "Company Projects", href: "/dashboard/portfolio/company" },
+                    { label: "Academy Submissions", href: "/dashboard/portfolio/academy" }
+                ],
+                roles: ["admin", "superadmin"] 
+            },
+        ]
+    },
+    {
+        title: "Content",
+        items: [
+            {
+                label: "Articles",
+                href: "/dashboard/articles",
+                icon: FileText,
+                roles: ["admin", "superadmin"]
+            },
+        ]
+    },
+    {
+        title: "Landing Page",
+        items: [
+            {
+                label: "Page Content",
+                icon: Globe,
+                href: "#",
+                subItems: [
+                    { label: "Site Settings", href: "/dashboard/settings" },
+                    { label: "Services", href: "/dashboard/services" },
+                    { label: "Team Members", href: "/dashboard/team" },
+                    { label: "Testimonials", href: "/dashboard/testimonials" }
+                ],
+                roles: ["admin", "superadmin"]
+            },
         ]
     },
     {

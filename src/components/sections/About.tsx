@@ -10,13 +10,13 @@ import { Button } from "@/components/ui/Button"
 import { Card, CardContent } from "@/components/ui/Card"
 import { cn } from "@/lib/utils"
 
-export function About() {
+export function About({ settings }: { settings?: Record<string, string> }) {
   const containerRef = React.useRef(null)
   
   return (
     <Section ref={containerRef} id="about" className="bg-background relative">
        {/* Ambient Elements */}
-       <div className="absolute top-0 left-1/4 -z-10 h-[600px] w-[600px] bg-primary/5 blur-[120px] rounded-full opacity-40 mix-blend-screen" />
+       <div className="absolute top-0 left-1/4 -z-10 h-150 w-150 bg-primary/5 blur-[120px] rounded-full opacity-40 mix-blend-screen" />
        
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             
@@ -33,13 +33,12 @@ export function About() {
                       About Ucentric
                    </div>
                    <Heading variant="h1" className="mb-6 leading-tight">
-                      We don't just build.<br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-600">
-                        We engineer impact.
-                      </span>
+                      {settings?.about_title || (
+                        <>We don't just build.<br /><span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-orange-600">We engineer impact.</span></>
+                      )}
                    </Heading>
                    <Text variant="muted" className="text-lg md:text-xl max-w-xl">
-                      Born from a passion for precision and a drive for innovation, Ucentric is a technology partner that transforms complex challenges into elegant digital solutions.
+                      {settings?.about_description || "Born from a passion for precision and a drive for innovation, Ucentric is a technology partner that transforms complex challenges into elegant digital solutions."}
                    </Text>
                </motion.div>
 
@@ -70,7 +69,7 @@ export function About() {
             {/* Right Column - Bento Grid Visuals */}
             <div className="relative">
                {/* Abstract decorative blobs behind grid */}
-               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-blue-500/10 rounded-full blur-3xl opacity-50 -z-10" />
+               <div className="absolute inset-0 bg-linear-to-tr from-primary/10 to-blue-500/10 rounded-full blur-3xl opacity-50 -z-10" />
 
                <div className="grid grid-cols-2 gap-4">
                   {/* Card 1: Projects */}
@@ -119,14 +118,14 @@ export function About() {
                     transition={{ delay: 0.4 }}
                     className="col-span-2"
                   >
-                     <Card className="overflow-hidden border-orange-500/10 bg-gradient-to-br from-orange-500/5 to-primary/5">
+                     <Card className="overflow-hidden border-orange-500/10 bg-linear-to-br from-orange-500/5 to-primary/5">
                         <CardContent className="p-8 flex items-center justify-between">
                             <div className="space-y-1">
                                <p className="text-sm font-bold uppercase tracking-wider text-orange-600">Experience</p>
                                <h4 className="text-3xl font-bold text-foreground">5+ Years</h4>
                                <p className="text-muted-foreground text-sm">Of defining digital excellence</p>
                             </div>
-                            <div className="h-16 w-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/25 animate-pulse">
+                            <div className="h-16 w-16 bg-linear-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/25 animate-pulse">
                                <Zap className="w-8 h-8 text-white" />
                             </div>
                         </CardContent>

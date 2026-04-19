@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { motion } from "framer-motion"
-import { Mail, MapPin, Phone, Send, Smartphone } from "lucide-react"
+import { Mail, MapPin, Send, Smartphone } from "lucide-react"
 import { Section } from "@/components/ui/Section"
 import { Button } from "@/components/ui/Button"
 import { Heading, Text } from "@/components/ui/Typography"
@@ -11,7 +11,15 @@ export default function ContactPageClient() {
   return (
     <main className="min-h-screen pt-24 pb-12 bg-background selection:bg-primary/20 selection:text-primary relative">
        {/* Background Pattern - Subtle */}
-       <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20" />
+       <div 
+         className="absolute inset-0 -z-20 opacity-20" 
+         style={{
+           backgroundImage: 'linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
+           backgroundSize: '4rem 4rem',
+           maskImage: 'radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%)',
+           WebkitMaskImage: 'radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%)'
+         }} 
+       />
 
       <Section className="py-0">
          <div className="container mx-auto px-4 relative z-10">
@@ -84,7 +92,7 @@ export default function ContactPageClient() {
                         <div className="relative group">
                            <textarea 
                               id="message"
-                              className="w-full min-h-[160px] rounded-xl border border-input bg-background/50 px-4 py-4 text-base text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary transition-all duration-200 resize-none"
+                              className="w-full min-h-40 rounded-xl border border-input bg-background/50 px-4 py-4 text-base text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary transition-all duration-200 resize-none"
                               placeholder="Tell us about your project..."
                            />
                         </div>

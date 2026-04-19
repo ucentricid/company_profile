@@ -31,7 +31,9 @@ const FEATURED_PROJECTS = [
   }
 ]
 
-export function PortfolioPreview() {
+export function PortfolioPreview({ data }: { data?: any[] }) {
+  const projectsToRender = data && data.length > 0 ? data : FEATURED_PROJECTS;
+
   return (
     <Section className="bg-background py-24">
       <div className="container mx-auto px-4">
@@ -67,7 +69,7 @@ export function PortfolioPreview() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-           {FEATURED_PROJECTS.map((project, index) => (
+           {projectsToRender.map((project, index) => (
               <motion.div
                  key={index}
                  initial={{ opacity: 0, y: 20 }}
@@ -78,7 +80,8 @@ export function PortfolioPreview() {
                  <Link href="/portfolio" className="block group h-full">
                     <Card className="h-full overflow-hidden border-border/50 hover:border-primary/50 transition-all duration-300 group-hover:shadow-xl bg-card">
                        {/* Image Placeholder */}
-                       <div className={`h-48 w-full ${project.image} relative overflow-hidden`}>
+                       <div className={`h-48 w-full ${!project.image?.startsWith('http') ? project.image || 'bg-gradient-to-br from-blue-600 to-indigo-700' : 'bg-muted'} relative overflow-hidden flex items-center justify-center`}>
+                          {project.image?.startsWith('http') && <img src={project.image} alt={project.title} className="w-full h-full object-cover" />}
                           <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
                           <div className="absolute top-4 right-4">
                              <Badge className="bg-white/90 text-black backdrop-blur-md shadow-sm border-none">

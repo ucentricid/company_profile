@@ -7,45 +7,47 @@ import { Section } from "@/components/ui/Section"
 import { Heading, Text } from "@/components/ui/Typography"
 import { Card, CardContent } from "@/components/ui/Card"
 
-const testimonials = [
+const defaultTestimonials = [
   {
     content: "Ucentric transformed our operational workflow entirely. Their U-Kasir system is intuitive and robust.",
-    author: "Sarah J.",
-    role: "Operational Manager",
+    clientName: "Sarah J.",
+    clientRole: "Operational Manager",
     company: "Retail Co.",
     rating: 5
   },
   {
     content: "The best ed-tech partner we've worked with. U-Cademic made student management seamless.",
-    author: "Dr. Budi Santoso",
-    role: "Headmaster",
+    clientName: "Dr. Budi Santoso",
+    clientRole: "Headmaster",
     company: "Global School",
     rating: 5
   },
   {
     content: "Their team isn't just a vendor; they are strategic partners who care about our growth.",
-    author: "James L.",
-    role: "CTO",
+    clientName: "James L.",
+    clientRole: "CTO",
     company: "FinTech Sol",
     rating: 5
   },
   {
     content: "Fast, reliable, and visually stunning. The custom development exceeded our expectations.",
-    author: "Anita W.",
-    role: "Product Owner",
+    clientName: "Anita W.",
+    clientRole: "Product Owner",
     company: "StartUp Inc.",
     rating: 4
   },
   {
       content: "Ucentric's attention to detail is unmatched. They truly engineer impact.",
-      author: "Michael T.",
-      role: "Director",
+      clientName: "Michael T.",
+      clientRole: "Director",
       company: "Logistics Pro",
       rating: 5
   }
 ]
 
-export function Testimonials() {
+export function Testimonials({ data }: { data?: any[] }) {
+  const testimonialsToRender = data && data.length > 0 ? data : defaultTestimonials;
+
   return (
     <Section id="testimonials" className="bg-background relative overflow-hidden py-24">
       {/* Header */}
@@ -83,9 +85,9 @@ export function Testimonials() {
             }}
          >
             {/* Duplicate list for seamless loop */}
-            {[...testimonials, ...testimonials].map((item, index) => (
+            {[...testimonialsToRender, ...testimonialsToRender].map((item, index) => (
                <div key={index} className="mr-8"> 
-                  <Card className="w-[350px] md:w-[400px] h-full bg-neutral-50 dark:bg-zinc-900 border-none shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <Card className="w-87.5 md:w-100 h-full bg-neutral-50 dark:bg-zinc-900 border-none shadow-sm hover:shadow-md transition-shadow duration-300">
                   <CardContent className="p-8 flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl">
                      <div className="mb-6 text-primary">
                         <Quote className="w-8 h-8 opacity-50" />
@@ -96,12 +98,16 @@ export function Testimonials() {
                      </p>
 
                      <div className="mt-auto flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center text-white font-bold text-sm">
-                           {item.author.charAt(0)}
-                        </div>
+                        {item.image ? (
+                           <img src={item.image} alt={item.clientName} className="h-10 w-10 rounded-full object-cover" />
+                        ) : (
+                           <div className="h-10 w-10 rounded-full bg-linear-to-br from-primary to-orange-400 flex items-center justify-center text-white font-bold text-sm">
+                              {item.clientName.charAt(0)}
+                           </div>
+                        )}
                         <div>
-                           <div className="font-bold text-zinc-900 dark:text-white">{item.author}</div>
-                           <div className="text-sm text-zinc-500 dark:text-zinc-400">{item.role}, {item.company}</div>
+                           <div className="font-bold text-zinc-900 dark:text-white">{item.clientName}</div>
+                           <div className="text-sm text-zinc-500 dark:text-zinc-400">{item.clientRole}{item.company ? `, ${item.company}` : ''}</div>
                         </div>
                         <div className="ml-auto flex gap-0.5">
                            {[...Array(5)].map((_, i) => (

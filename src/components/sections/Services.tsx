@@ -7,40 +7,46 @@ import { Section } from "@/components/ui/Section"
 import { Heading, Text } from "@/components/ui/Typography"
 import { Card, CardContent } from "@/components/ui/Card"
 
-const services = [
+import * as LucideIcons from "lucide-react"
+
+// Default fallback services if DB is empty
+const defaultServices = [
   {
     title: "Web Development",
     description: "High-performance websites built with Next.js and modern technologies for maximum speed and SEO.",
-    icon: Globe,
+    iconName: "Globe",
   },
   {
     title: "Mobile App Development",
     description: "Native and cross-platform mobile applications that provide seamless user experiences.",
-    icon: Smartphone,
+    iconName: "Smartphone",
   },
   {
     title: "UI/UX Design",
     description: "Intuitive and beautiful interfaces designed with a user-centric approach.",
-    icon: Palette,
+    iconName: "Palette",
   },
   {
     title: "Custom Software",
     description: "Tailored software solutions to automate business processes and improve efficiency.",
-    icon: Code2,
+    iconName: "Code2",
   },
   {
     title: "Cloud Solutions",
     description: "Scalable cloud infrastructure setup and management using AWS, GCP, or Azure.",
-    icon: Database,
+    iconName: "Database",
   },
   {
     title: "Digital Growth",
     description: "Data-driven strategies to boost your digital presence and drive conversions.",
-    icon: Rocket,
+    iconName: "Rocket",
   },
 ]
 
-function ServiceCard({ title, description, icon: Icon }: { title: string; description: string; icon: any }) {
+function ServiceCard({ title, description, iconName }: { title: string; description: string; iconName: string }) {
+  // @ts-ignore - dynamic icon loading
+  const Icon = (LucideIcons as any)[iconName] || LucideIcons.Globe
+
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
@@ -93,7 +99,9 @@ function ServiceCard({ title, description, icon: Icon }: { title: string; descri
   )
 }
 
-export function Services() {
+export function Services({ data }: { data?: any[] }) {
+  const servicesToRender = data && data.length > 0 ? data : defaultServices;
+
   return (
     <Section id="services" className="bg-background">
       {/* Decorative Background */}
@@ -127,7 +135,7 @@ export function Services() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {services.map((service, index) => (
+        {servicesToRender.map((service, index) => (
           <ServiceCard key={index} {...service} />
         ))}
       </div>

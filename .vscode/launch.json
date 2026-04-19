@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev"
+    },
+    {
+      "name": "Next.js: Build",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run build"
+    },
+    {
+      "name": "Next.js: Start (Production)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start"
+    },
+    {
+      "name": "Prisma: Generate Client",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx prisma generate"
+    },
+    {
+      "name": "Prisma: Studio",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx prisma studio"
+    }
+  ]
+}

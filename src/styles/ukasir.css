@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --ukasir-primary: #1E1B4B; /* Deep Indigo */
+  --ukasir-accent: #2563EB;  /* Electric Blue */
+  --ukasir-highlight: #10B981; /* Emerald */
+  --ukasir-surface: #ffffff; /* Solid White */
+  --font-outfit: 'Outfit', sans-serif;
+}
+
+.ukasir-mesh-gradient {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(225, 80%, 92%, 1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(210, 80%, 96%, 1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(190, 80%, 92%, 1) 0, transparent 50%);
+}
+
+.ukasir-nav-pill {
+  background: var(--ukasir-surface);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.03);
+}
+
+.ukasir-btn-premium {
+  background: var(--ukasir-accent);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ukasir-btn-premium:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+}
+
+.ukasir-btn-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.ukasir-btn-glow::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ukasir-btn-glow:hover::after {
+  opacity: 1;
+}
+
+.ukasir-text-gradient {
+  background: linear-gradient(135deg, var(--ukasir-primary) 0%, var(--ukasir-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ukasir-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .ukasir-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .ukasir-bento-grid {
+    grid-template-columns: 1fr;
+  }
+}

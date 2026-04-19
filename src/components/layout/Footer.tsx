@@ -45,7 +45,7 @@ export function Footer() {
             <div>
                <h4 className="font-bold text-foreground mb-6">Product</h4>
                <ul className="space-y-3 text-sm text-muted-foreground">
-                  <li><Link href="/u-kasir" className="hover:text-primary transition-colors">U-Kasir</Link></li>
+                  <li><Link href="http://localhost:3001/u-kasir" className="hover:text-primary transition-colors">U-Kasir</Link></li>
                   <li><Link href="/u-cademic" className="hover:text-primary transition-colors">U-Academic</Link></li>
                   <li><Link href="/services" className="hover:text-primary transition-colors">Enterprise Services</Link></li>
                   <li><Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>

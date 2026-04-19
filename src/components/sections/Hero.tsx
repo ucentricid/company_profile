@@ -26,7 +26,7 @@ function FloatingElement({ children, delay = 0, duration = 4, x = 20, y = 20 }: 
   )
 }
 
-export function Hero() {
+export function Hero({ settings }: { settings?: Record<string, string> }) {
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const y2 = useTransform(scrollY, [0, 500], [0, -150]);
@@ -34,9 +34,17 @@ export function Hero() {
   return (
     <section className="relative flex min-h-[110vh] w-full items-center justify-center overflow-hidden bg-background pt-20 md:pt-28 pb-16">
       {/* Dynamic Background */}
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-      <div className="absolute top-0 left-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
-      <div className="absolute top-0 right-0 -z-10 h-[500px] w-[500px] bg-blue-500/10 blur-[100px]" />
+      <div 
+        className="absolute inset-0 -z-10" 
+        style={{
+          backgroundImage: 'linear-gradient(to right, #8080800a 1px, transparent 1px), linear-gradient(to bottom, #8080800a 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+          maskImage: 'radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%)'
+        }} 
+      />
+      <div className="absolute top-0 left-1/2 -z-10 h-150 w-150 -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
+      <div className="absolute top-0 right-0 -z-10 h-125 w-125 bg-blue-500/10 blur-[100px]" />
       
       <div className="container relative z-10 mx-auto grid gap-12 px-4 md:grid-cols-2 md:items-center md:gap-8 lg:px-8">
         
@@ -60,18 +68,16 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl xl:text-7xl leading-[1.1]"
-            >
-              Transforming Ideas <br className="hidden lg:block"/>
-              into <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-yellow-500 animate-gradient-x">Digital Reality</span>
-            </motion.h1>
+              dangerouslySetInnerHTML={{ __html: settings?.hero_title || 'Transforming Ideas <br class="hidden lg:block"/> into <span class="text-transparent bg-clip-text bg-linear-to-r from-primary via-orange-500 to-yellow-500 animate-gradient-x">Digital Reality</span>' }}
+            />
             
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="max-w-[600px] text-lg text-muted-foreground md:text-xl mx-auto md:mx-0 leading-relaxed font-light text-balance"
+              className="max-w-150 text-lg text-muted-foreground md:text-xl mx-auto md:mx-0 leading-relaxed font-light text-balance"
             >
-              We craft high-performance websites, mobile apps, and digital ecosystems that drive growth and innovation for your business.
+              {settings?.hero_subtitle || "We craft high-performance websites, mobile apps, and digital ecosystems that drive growth and innovation for your business."}
             </motion.p>
           </div>
 
@@ -89,7 +95,7 @@ export function Hero() {
                 Start Your Project
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </span>
-              <div className="absolute inset-0 -z-10 translate-y-[100%] bg-gradient-to-r from-orange-600 to-red-600 transition-transform duration-300 group-hover:translate-y-0" />
+              <div className="absolute inset-0 -z-10 translate-y-full bg-linear-to-r from-orange-600 to-red-600 transition-transform duration-300 group-hover:translate-y-0" />
             </Link>
             <Link
               href="/portfolio"
@@ -120,15 +126,15 @@ export function Hero() {
         {/* Right Column: 3D/Glass Visuals */}
         <motion.div 
            style={{ y: y2 }}
-           className="relative hidden items-center justify-center md:flex md:h-[600px] perspective-1000"
+           className="relative hidden items-center justify-center md:flex md:h-150 perspective-1000"
         >
-           <div className="relative h-full w-full max-w-[600px]">
+           <div className="relative h-full w-full max-w-150">
               {/* Background Glow */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-purple-500/20 to-blue-500/20 blur-[80px] rounded-full animate-pulse-slow" />
+              <div className="absolute inset-0 bg-linear-to-tr from-primary/20 via-purple-500/20 to-blue-500/20 blur-[80px] rounded-full animate-pulse-slow" />
               
               {/* Main Card - Glassmorphism */}
               <FloatingElement delay={0} duration={6} x={10} y={15}>
-                <div className="relative z-10 w-full aspect-[4/3] rounded-2xl border border-white/20 bg-white/10 backdrop-blur-2xl shadow-2xl dark:bg-black/20 dark:border-white/10 overflow-hidden">
+                <div className="relative z-10 w-full aspect-4/3 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-2xl shadow-2xl dark:bg-black/20 dark:border-white/10 overflow-hidden">
                    {/* Fake Browser UI */}
                    <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 p-4">
                       <div className="flex gap-2">
@@ -141,13 +147,13 @@ export function Hero() {
                    
                    {/* Content Area */}
                    <div className="p-6 grid gap-4 grid-cols-2 h-full">
-                      <div className="col-span-2 h-24 rounded-xl bg-gradient-to-r from-primary/20 to-purple-500/20 border border-white/10" />
+                      <div className="col-span-2 h-24 rounded-xl bg-linear-to-r from-primary/20 to-purple-500/20 border border-white/10" />
                       <div className="h-32 rounded-xl bg-white/5 border border-white/10" />
                       <div className="h-32 rounded-xl bg-white/5 border border-white/10" />
                    </div>
                    
                    {/* Shine Effect */}
-                   <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-transparent opacity-50" />
+                   <div className="absolute inset-0 bg-linear-to-tr from-white/10 via-transparent to-transparent opacity-50" />
                 </div>
               </FloatingElement>
 

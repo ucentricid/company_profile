@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang="en" className="light" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
         className={`${poppins.variable} ${redHatDisplay.variable} min-h-screen bg-background font-sans antialiased`}
       >

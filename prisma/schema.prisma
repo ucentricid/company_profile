@@ -113,6 +113,7 @@ model User {
   Account        Account[]
   PaymentAccount PaymentAccount[]
   Session        Session[]
+  PortfolioPost  PortfolioPost[]
 }
 
 model VerificationToken {
@@ -175,4 +176,131 @@ enum ApplicationStatus {
   OFFERED
   REJECTED
   ACCEPTED
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PortfolioStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PortfolioPost {
+  id          String          @id @default(cuid())
+  userId      String
+  title       String
+  slug        String          @unique
+  description String?         @db.Text
+  content     String?         @db.Text
+  imageUrl    String?
+  projectUrl  String?
+  status      PortfolioStatus @default(DRAFT)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  User        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Article {
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  excerpt     String?
+  content     String?        @db.Text
+  category    String
+  imageUrl    String?
+  authorName  String
+  authorImage String?
+  authorRole  String?
+  readTime    String         @default("5 min read")
+  isFeatured  Boolean        @default(false)
+  isTrending  Boolean        @default(false)
+  status      ArticleStatus  @default(DRAFT)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([isTrending])
+}
+
+// ==========================================
+// Landing Page CMS Models (Phase 2)
+// ==========================================
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g., 'hero_title', 'hero_subtitle'
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  iconName    String   // e.g., 'Globe', 'Smartphone' (matches Lucide icons)
+  order       Int      @default(0) // For sorting display order
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  image       String?  // Optional for now until image upload
+  linkedinUrl String?
+  twitterUrl  String?
+  githubUrl   String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  clientName  String
+  clientRole  String
+  company     String?
+  content     String   @db.Text
+  image       String?
+  rating      Int      @default(5)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// Company Projects Model
+// ==========================================
+
+model CompanyProject {
+  id          String   @id @default(cuid())
+  title       String
+  client      String
+  category    String   // e.g. Finance, Retail
+  tags        String[] // e.g. ["Mobile App", "React"]
+  description String   @db.Text
+  stats       String   // e.g. "5M+ Users"
+  image       String?  // Cover image
+  projectUrl  String?
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

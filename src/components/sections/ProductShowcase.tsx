@@ -14,8 +14,8 @@ export function ProductShowcase() {
   return (
     <Section id="products" className="bg-background relative overflow-hidden">
        {/* Ambient Background - Consistent with Hero */}
-       <div className="absolute top-1/2 right-0 -z-10 h-[800px] w-[800px] -translate-y-1/2 bg-orange-500/5 blur-[120px] rounded-full opacity-60" />
-       <div className="absolute bottom-0 left-0 -z-10 h-[600px] w-[600px] bg-blue-500/5 blur-[100px] rounded-full opacity-60" />
+       <div className="absolute top-1/2 right-0 -z-10 h-200 w-200 -translate-y-1/2 bg-orange-500/5 blur-[120px] rounded-full opacity-60" />
+       <div className="absolute bottom-0 left-0 -z-10 h-150 w-150 bg-blue-500/5 blur-[100px] rounded-full opacity-60" />
 
       <div className="mb-20 flex flex-col items-center text-center space-y-4 relative z-10">
         <motion.div
@@ -45,10 +45,10 @@ export function ProductShowcase() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-             <Link href="/products/u-kasir" className="block h-full">
+             <Link href="http://localhost:3001/u-kasir" className="block h-full">
                 <Card className="group relative h-full overflow-hidden border-border bg-white hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 rounded-[2.5rem]">
                    {/* Top Highlight Bar */}
-                   <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600" />
+                   <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-blue-500 to-indigo-600" />
                    
                    <CardContent className="p-10 flex flex-col h-full relative z-10">
                       <div className="flex items-start justify-between mb-8">
@@ -94,7 +94,7 @@ export function ProductShowcase() {
              <Link href="/products/u-cademic" className="block h-full">
                 <Card className="group relative h-full overflow-hidden border-border bg-white hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 rounded-[2.5rem]">
                    {/* Top Highlight Bar */}
-                   <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-500 to-red-500" />
+                   <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-orange-500 to-red-500" />
                    
                    <CardContent className="p-10 flex flex-col h-full relative z-10">
                       <div className="flex items-start justify-between mb-8">

@@ -8,12 +8,14 @@ import { Menu, X, ArrowRight } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
+import { useSession } from "next-auth/react"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { data: session } = useSession()
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -64,7 +66,7 @@ export function Header() {
           className={cn(
             "flex items-center justify-between transition-all duration-500 ease-in-out",
             isScrolled 
-              ? "h-16 w-[95%] md:w-auto md:min-w-[700px] lg:min-w-[800px] max-w-7xl rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-xl px-4" 
+              ? "h-16 w-[95%] md:w-auto md:min-w-[700px] lg:min-w-[800px] max-w-7xl rounded-full bg-white/90 backdrop-blur-md border border-zinc-200 shadow-xl px-4" 
               : "h-28 w-full max-w-7xl px-6 bg-transparent"
           )}
         >
@@ -97,21 +99,47 @@ export function Header() {
                 {item.title}
               </Link>
             ))}
+            {session?.user && (session.user.role === "admin" || session.user.role === "superadmin") && (
+              <Link
+                href="/dashboard"
+                className={cn(
+                  "relative px-4 py-1.5 text-[10px] font-black tracking-widest uppercase transition-all duration-300 rounded-full",
+                  isScrolled 
+                    ? "text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20" 
+                    : "text-zinc-400 hover:text-indigo-600 hover:bg-white/50 backdrop-blur-sm shadow-sm border border-transparent hover:border-indigo-100 px-5"
+                )}
+              >
+                Dashboard
+              </Link>
+            )}
           </nav>
 
-          {/* Actions */}
           <div className="flex items-center gap-2 px-1">
-            <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
-               {isScrolled ? (
-                  <Button size="sm" className="rounded-full h-9 px-4 text-xs">
-                     Contact
+            {session?.user ? (
+               <div className="flex items-center gap-2">
+                 <Link href={`/portfolio/${encodeURIComponent(session.user.name || "")}`} onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="ghost" className={cn(
+                      "rounded-2xl transition-all duration-300 font-extrabold tracking-tighter shadow-none",
+                      isScrolled 
+                        ? "h-11 px-7 text-[11px] bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-600/30" 
+                        : "hidden md:inline-flex h-12 px-9 text-xs bg-indigo-600 text-white hover:bg-indigo-700 shadow-2xl shadow-indigo-600/30"
+                    )}>
+                      MY PORTFOLIO
+                    </Button>
+                 </Link>
+               </div>
+            ) : (
+               <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="ghost" className={cn(
+                    "rounded-2xl transition-all duration-300 font-extrabold tracking-tighter uppercase group shadow-none",
+                    isScrolled 
+                      ? "h-11 px-8 text-[11px] bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/30" 
+                      : "hidden md:inline-flex h-12 px-10 text-xs bg-zinc-900 text-white hover:bg-black hover:scale-[1.02] shadow-2xl shadow-zinc-900/20"
+                  )}>
+                    LET'S TALK <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Button>
-               ) : (
-                  <Button className="hidden md:inline-flex rounded-full h-10 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20">
-                     Contact Us <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
-               )}
-            </Link>
+               </Link>
+            )}
 
             <button
               className="p-2 text-muted-foreground hover:text-primary transition-colors md:hidden"
@@ -164,13 +192,31 @@ export function Header() {
                     <span className="text-primary/0 transition-colors group-hover:text-primary/100">→</span>
                   </Link>
                 ))}
-                <div className="pt-6 mt-4 border-t border-border">
-                  <Link
-                    href="/contact"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                     <Button className="w-full rounded-xl">Contact Us</Button>
-                  </Link>
+                <div className="pt-6 mt-4 border-t border-border flex flex-col gap-3">
+                  {session?.user && (session.user.role === "admin" || session.user.role === "superadmin") && (
+                    <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                       <Button variant="outline" className="w-full rounded-xl justify-between group">
+                         Admin Dashboard <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                       </Button>
+                    </Link>
+                  )}
+                  {session?.user ? (
+                    <Link
+                      href={`/portfolio/${encodeURIComponent(session.user.name || "")}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                       <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20">
+                         My Portfolio
+                       </Button>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/contact"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                       <Button className="w-full rounded-xl">Contact Us</Button>
+                    </Link>
+                  )}
                 </div>
               </nav>
             </motion.div>
