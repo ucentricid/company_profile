@@ -7,12 +7,11 @@ export default async function middleware(req: NextRequest) {
     const url = req.nextUrl.clone()
 
     // 1. Identify if it's Ukasir request
-    // Locally we can test with ?site=ukasir or ukasir.localhost
-    const isUkasir = host.includes('ukasir.id') || url.searchParams.get('site') === 'ukasir' || url.pathname.startsWith('/ukasir') || url.pathname.startsWith('/u-kasir')
+    // const isUkasir = host.includes('ukasir.id') || url.searchParams.get('site') === 'ukasir' || url.pathname.startsWith('/ukasir') || url.pathname.startsWith('/u-kasir')
 
-    if (isUkasir) {
-        return NextResponse.redirect('http://localhost:3001/u-kasir')
-    }
+    // if (isUkasir) {
+    //     return NextResponse.redirect('http://localhost:3001/u-kasir')
+    // }
 
     // 2. Handle Authentication for Dashboard
     if (url.pathname.startsWith('/dashboard')) {

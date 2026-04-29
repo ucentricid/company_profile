@@ -66,7 +66,7 @@ export function Header() {
           className={cn(
             "flex items-center justify-between transition-all duration-500 ease-in-out",
             isScrolled 
-              ? "h-16 w-[95%] md:w-auto md:min-w-[700px] lg:min-w-[800px] max-w-7xl rounded-full bg-white/90 backdrop-blur-md border border-zinc-200 shadow-xl px-4" 
+              ? "h-16 w-[95%] md:w-auto md:min-w-175 lg:min-w-200 max-w-7xl rounded-full bg-white/90 backdrop-blur-md border border-zinc-200 shadow-xl px-4" 
               : "h-28 w-full max-w-7xl px-6 bg-transparent"
           )}
         >
@@ -133,7 +133,7 @@ export function Header() {
                   <Button variant="ghost" className={cn(
                     "rounded-2xl transition-all duration-300 font-extrabold tracking-tighter uppercase group shadow-none",
                     isScrolled 
-                      ? "h-11 px-8 text-[11px] bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/30" 
+                      ? "h-11 px-8 text-[11px] bg-linear-to-r from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/30" 
                       : "hidden md:inline-flex h-12 px-10 text-xs bg-zinc-900 text-white hover:bg-black hover:scale-[1.02] shadow-2xl shadow-zinc-900/20"
                   )}>
                     LET'S TALK <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -159,7 +159,7 @@ export function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] md:hidden"
+            className="fixed inset-0 z-60 bg-black/40 backdrop-blur-[2px] md:hidden"
             onClick={() => setIsMenuOpen(false)}
           >
             <motion.div
@@ -167,7 +167,7 @@ export function Header() {
                animate={{ x: 0 }}
                exit={{ x: "100%" }}
                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-               className="absolute right-0 top-0 bottom-0 w-[300px] bg-background border-l border-border p-6 shadow-2xl"
+               className="absolute right-0 top-0 bottom-0 w-75 bg-background border-l border-border p-6 shadow-2xl"
                onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-8">
@@ -189,7 +189,7 @@ export function Header() {
                     className="flex items-center justify-between p-3 rounded-xl text-base font-medium text-muted-foreground transition-all hover:bg-muted hover:text-primary hover:pl-4"
                   >
                     {item.title}
-                    <span className="text-primary/0 transition-colors group-hover:text-primary/100">→</span>
+                    <span className="text-primary/0 transition-colors group-hover:text-primary">→</span>
                   </Link>
                 ))}
                 <div className="pt-6 mt-4 border-t border-border flex flex-col gap-3">

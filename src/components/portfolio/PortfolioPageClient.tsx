@@ -22,7 +22,7 @@ export default function PortfolioPageClient({ initialProjects = [] }: { initialP
    return (
       <main className="min-h-screen pt-24 pb-12 bg-background relative selection:bg-primary/20 selection:text-primary">
          {/* Background Decor */}
-         <div className="absolute top-0 left-0 right-0 h-[500px] bg-primary/5 blur-[150px] -z-10 opacity-60" />
+         <div className="absolute top-0 left-0 right-0 h-125 bg-primary/5 blur-[150px] -z-10 opacity-60" />
          <div className="absolute top-40 right-10 w-64 h-64 bg-blue-500/5 blur-[100px] rounded-full -z-10" />
 
          <Section className="py-0 relative z-10">
@@ -113,9 +113,31 @@ export default function PortfolioPageClient({ initialProjects = [] }: { initialP
 
 function ProjectCard({ project }: { project: any }) {
    const isCompany = project.category === "Company Projects"
+   
+   // Generate correct href based on project type
+   const href = isCompany 
+      ? (project.projectUrl || `/portfolio/company/${project.slug}`)
+      : `/portfolio/${encodeURIComponent(project.author)}`
+   
+   const isExternal = href.startsWith('http')
+
+   const CardWrapper = ({ children }: { children: React.ReactNode }) => {
+      if (isExternal) {
+         return (
+            <a href={href} target="_blank" rel="noopener noreferrer" className="block h-full group">
+               {children}
+            </a>
+         )
+      }
+      return (
+         <Link href={href} className="block h-full group">
+            {children}
+         </Link>
+      )
+   }
 
    return (
-      <Link href={`/portfolio/${project.id}`} className="block h-full group">
+      <CardWrapper>
          <Card className="h-full overflow-hidden border-border/50 hover:border-primary/50 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/5 bg-card/40 hover:bg-card/60">
             {/* Image Area - Placeholder Gradient */}
             <div className={`h-64 w-full ${project.image} relative overflow-hidden`}>
@@ -160,6 +182,6 @@ function ProjectCard({ project }: { project: any }) {
                </Text>
             </CardContent>
          </Card>
-      </Link>
+      </CardWrapper>
    )
 }

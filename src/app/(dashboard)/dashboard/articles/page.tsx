@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Plus, Search, Edit2, Trash2, Eye, Star, TrendingUp, FileText, ChevronLeft, ChevronRight } from "lucide-react"
+import { Plus, Search, Edit2, Trash2, Eye, Star, TrendingUp, FileText, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Card, CardContent } from "@/components/ui/Card"
@@ -225,6 +225,14 @@ export default function ArticlesCMSPage() {
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => window.open(`/articles/${article.slug}`, '_blank')}
+                                                        title="View article"
+                                                    >
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    </Button>
                                                     <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/articles/${article.id}/edit`)}>
                                                         <Edit2 className="w-4 h-4" />
                                                     </Button>
@@ -269,6 +277,14 @@ export default function ArticlesCMSPage() {
                                             {article.isTrending && <TrendingUp className="w-4 h-4 text-blue-500" />}
                                         </div>
                                         <div className="flex gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => window.open(`/articles/${article.slug}`, '_blank')}
+                                                title="View article"
+                                            >
+                                                <ExternalLink className="w-4 h-4" />
+                                            </Button>
                                             <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/articles/${article.id}/edit`)}>
                                                 <Edit2 className="w-4 h-4" />
                                             </Button>

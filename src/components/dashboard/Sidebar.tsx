@@ -259,7 +259,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 {/* Footer */}
                 <div className="p-4 border-t border-[#1E293B] bg-[#0F172A]">
                     <button
-                        onClick={() => signOut({ callbackUrl: '/login' })}
+                        onClick={() => signOut({ callbackUrl: typeof window !== 'undefined' ? `${window.location.origin}/login` : '/login' })}
                         className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 w-full transition-all group border border-transparent hover:border-red-500/20"
                     >
                         <LogOut className="w-5 h-5 text-slate-500 group-hover:text-red-400" />

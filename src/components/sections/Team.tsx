@@ -43,6 +43,31 @@ const defaultTeam = [
 
 export function Team({ data }: { data?: any[] }) {
   const teamToRender = data && data.length > 0 ? data : defaultTeam;
+  const [activeIndex, setActiveIndex] = React.useState(0);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const scrollPosition = container.scrollLeft + container.clientWidth / 2;
+    
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+
+    Array.from(container.children).forEach((child, index) => {
+      const childElement = child as HTMLElement;
+      // Calculate the center of the child relative to the container
+      const childCenter = childElement.offsetLeft + childElement.offsetWidth / 2;
+      const distance = Math.abs(childCenter - scrollPosition);
+      
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+
+    if (activeIndex !== closestIndex) {
+      setActiveIndex(closestIndex);
+    }
+  };
 
   return (
     <Section id="team" className="bg-[#FFF8F5] relative overflow-hidden">
@@ -69,7 +94,19 @@ export function Team({ data }: { data?: any[] }) {
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto relative z-10 px-4">
+      <style>{`
+        .hide-scroll::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scroll {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      <div 
+        className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-7xl mx-auto relative z-10 px-4 overflow-x-auto snap-x snap-mandatory hide-scroll pb-4 pt-2"
+        onScroll={handleScroll}
+      >
         {teamToRender.map((member, index) => (
           <motion.div
             key={index}
@@ -77,7 +114,7 @@ export function Team({ data }: { data?: any[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             viewport={{ once: true }}
-            className="w-full"
+            className="w-[85vw] sm:w-auto shrink-0 snap-center"
           >
             {/* Black Card with White Text */}
             <Card className="h-full border-none bg-zinc-900 shadow-xl shadow-orange-500/5 hover:bg-zinc-800 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 group overflow-hidden">
@@ -106,6 +143,16 @@ export function Team({ data }: { data?: any[] }) {
               </CardContent>
             </Card>
           </motion.div>
+        ))}
+      </div>
+
+      {/* Mobile Pagination Dots */}
+      <div className="flex justify-center gap-2 mt-4 sm:hidden relative z-10 w-full">
+        {teamToRender.map((_, index) => (
+          <div 
+            key={index} 
+            className={`h-2 rounded-full transition-all duration-300 ${activeIndex === index ? "w-6 bg-orange-600" : "w-2 bg-orange-200"}`}
+          />
         ))}
       </div>
     </Section>

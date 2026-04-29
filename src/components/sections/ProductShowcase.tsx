@@ -45,7 +45,7 @@ export function ProductShowcase() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-             <Link href="http://localhost:3001/u-kasir" className="block h-full">
+             <Link href="/products/ukasir" className="block h-full">
                 <Card className="group relative h-full overflow-hidden border-border bg-white hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 rounded-[2.5rem]">
                    {/* Top Highlight Bar */}
                    <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-blue-500 to-indigo-600" />

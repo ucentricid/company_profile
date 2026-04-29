@@ -17,7 +17,14 @@ export default function SettingsPage() {
         about_title: "",
         about_description: "",
         career_title: "",
-        career_description: ""
+        career_description: "",
+        footer_tagline: "",
+        footer_company_name: "",
+        footer_newsletter_text: "",
+        footer_social_linkedin: "",
+        footer_social_twitter: "",
+        footer_social_instagram: "",
+        footer_social_facebook: ""
     })
 
     useEffect(() => {
@@ -97,7 +104,7 @@ export default function SettingsPage() {
                             <Textarea 
                                 value={settings.hero_subtitle || ""} 
                                 onChange={(e) => handleChange("hero_subtitle", e.target.value)} 
-                                className="bg-[#0F172A] border-[#334155] min-h-[100px]"
+                                className="bg-[#0F172A] border-[#334155] min-h-25"
                                 placeholder="We craft high-performance websites..."
                             />
                         </div>
@@ -123,7 +130,7 @@ export default function SettingsPage() {
                             <Textarea 
                                 value={settings.about_description || ""} 
                                 onChange={(e) => handleChange("about_description", e.target.value)} 
-                                className="bg-[#0F172A] border-[#334155] min-h-[120px]"
+                                className="bg-[#0F172A] border-[#334155] min-h-30"
                             />
                         </div>
                     </CardContent>
@@ -149,6 +156,80 @@ export default function SettingsPage() {
                                 onChange={(e) => handleChange("career_description", e.target.value)} 
                                 className="bg-[#0F172A] border-[#334155]"
                             />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-[#1E293B] border-[#334155] text-slate-100">
+                    <CardHeader>
+                        <CardTitle className="text-xl">Footer</CardTitle>
+                        <CardDescription className="text-slate-400">Content displayed in the site footer.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Tagline / Description</label>
+                            <Textarea 
+                                value={settings.footer_tagline || ""} 
+                                onChange={(e) => handleChange("footer_tagline", e.target.value)} 
+                                className="bg-[#0F172A] border-[#334155] min-h-20"
+                                placeholder="Empowering businesses through digital transformation..."
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Company Name (Copyright)</label>
+                            <Input 
+                                value={settings.footer_company_name || ""} 
+                                onChange={(e) => handleChange("footer_company_name", e.target.value)} 
+                                className="bg-[#0F172A] border-[#334155]"
+                                placeholder="Ucentric Inc."
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Newsletter Text</label>
+                            <Input 
+                                value={settings.footer_newsletter_text || ""} 
+                                onChange={(e) => handleChange("footer_newsletter_text", e.target.value)} 
+                                className="bg-[#0F172A] border-[#334155]"
+                                placeholder="Subscribe to our newsletter for the latest insights."
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">LinkedIn URL</label>
+                                <Input 
+                                    value={settings.footer_social_linkedin || ""} 
+                                    onChange={(e) => handleChange("footer_social_linkedin", e.target.value)} 
+                                    className="bg-[#0F172A] border-[#334155]"
+                                    placeholder="https://linkedin.com/..."
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Twitter URL</label>
+                                <Input 
+                                    value={settings.footer_social_twitter || ""} 
+                                    onChange={(e) => handleChange("footer_social_twitter", e.target.value)} 
+                                    className="bg-[#0F172A] border-[#334155]"
+                                    placeholder="https://twitter.com/..."
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Instagram URL</label>
+                                <Input 
+                                    value={settings.footer_social_instagram || ""} 
+                                    onChange={(e) => handleChange("footer_social_instagram", e.target.value)} 
+                                    className="bg-[#0F172A] border-[#334155]"
+                                    placeholder="https://instagram.com/..."
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Facebook URL</label>
+                                <Input 
+                                    value={settings.footer_social_facebook || ""} 
+                                    onChange={(e) => handleChange("footer_social_facebook", e.target.value)} 
+                                    className="bg-[#0F172A] border-[#334155]"
+                                    placeholder="https://facebook.com/..."
+                                />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
