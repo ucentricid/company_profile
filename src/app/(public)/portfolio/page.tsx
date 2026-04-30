@@ -19,7 +19,7 @@ export default async function PortfolioPage() {
    const academyPostsRaw = await db.portfolioPost.findMany({
       where: { status: "APPROVED" },
       include: {
-         User: { select: { name: true } }
+         User: { select: { name: true, image: true } }
       },
       orderBy: { createdAt: "desc" }
    })
@@ -34,7 +34,8 @@ export default async function PortfolioPage() {
       tags: p.tags,
       description: p.description,
       stats: p.stats,
-      slug: p.id // using id as slug for now, or you could add slug to CompanyProject
+      slug: p.id,
+      projectUrl: p.projectUrl
    }))
 
    const academyPosts = academyPostsRaw.map(p => ({
@@ -42,8 +43,9 @@ export default async function PortfolioPage() {
       title: p.title,
       category: "Ucentric Academy" as const,
       author: p.User.name || "Intern",
+      authorImage: p.User.image,
       image: p.imageUrl || "bg-gradient-to-br from-orange-400 to-pink-500",
-      tags: [], // Intern portfolio doesn't save tags as array in schema directly, it's inside content block, we'll just leave empty or parse if needed. Or we leave it empty.
+      tags: [],
       description: p.description || "",
       stats: "Verified",
       slug: p.slug

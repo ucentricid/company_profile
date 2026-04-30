@@ -105,7 +105,7 @@ export function Services({ data }: { data?: any[] }) {
   return (
     <Section id="services" className="bg-background">
       {/* Decorative Background */}
-      <div className="absolute top-1/2 left-0 -z-10 h-[600px] w-[600px] -translate-y-1/2 bg-primary/5 blur-[120px] rounded-full opacity-50" />
+      <div className="absolute top-1/2 left-0 -z-10 h-150 w-150 -translate-y-1/2 bg-primary/5 blur-[120px] rounded-full opacity-50" />
 
       <div className="mb-16 flex flex-col items-center text-center space-y-4">
         <motion.div
@@ -128,7 +128,7 @@ export function Services({ data }: { data?: any[] }) {
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
         >
-          <Text variant="muted" className="max-w-[700px] md:text-lg">
+          <Text variant="muted" className="max-w-175 md:text-lg">
             We provide end-to-end digital solutions designed to scale your business, from concept to execution.
           </Text>
         </motion.div>
