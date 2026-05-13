@@ -10,6 +10,20 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/products/ukasir',
+        destination: 'https://www.ukasir.id/',
+        permanent: true,
+      },
+      {
+        source: '/products/ukasir/:path*',
+        destination: 'https://www.ukasir.id/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

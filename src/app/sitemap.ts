@@ -9,8 +9,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         "",
         "/about",
         "/products",
-        "/products/ukasir",
-        "/products/u-cademic",
         "/portfolio",
         "/articles",
         "/career",
@@ -62,5 +60,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
     }))
 
-    return [...staticRoutes, ...articleRoutes, ...portfolioRoutes, ...projectRoutes]
+    // Dynamic routes - Products
+    let productRoutes: MetadataRoute.Sitemap = []
+    try {
+        const products = await db.product.findMany({
+            where: { isActive: true },
+            select: { slug: true, updatedAt: true },
+        })
+
+        productRoutes = products.map((product) => ({
+            url: `${baseUrl}/products/${product.slug}`,
+            lastModified: product.updatedAt,
+            changeFrequency: "monthly" as const,
+            priority: 0.8,
+        }))
+    } catch (error) {
+        console.error("Failed to fetch products for sitemap:", error)
+    }
+
+    return [...staticRoutes, ...articleRoutes, ...portfolioRoutes, ...projectRoutes, ...productRoutes]
 }

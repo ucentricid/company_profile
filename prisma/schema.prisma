@@ -304,3 +304,23 @@ model CompanyProject {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String                    // e.g., "U-Kasir", "U-Cademic"
+  slug         String   @unique          // URL: /products/ukasir, /products/u-cademic
+  tagline      String                    // Short category badge: "Retail POS", "Education"
+  description  String   @db.Text         // Hero description text
+  iconName     String   @default("Box")  // Lucide icon for showcase cards
+  features     String[]                  // List of feature headlines for showcase card
+  heroTitle    String?                   // Hero section H1 (e.g., "Smart Campus Ecosystem.")
+  heroGradient String?                   // Tailwind gradient: "from-orange-500 to-red-600"
+  ctaText      String   @default("Request Demo")  // CTA button text
+  ctaLink      String   @default("/contact")       // CTA button link
+  content      String?  @db.Text         // Full product page HTML (for dynamic [slug] page)
+  imageUrl     String?                   // Product screenshot/cover image
+  isActive     Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

@@ -1,6 +1,6 @@
 import { Hero } from "@/components/sections/Hero";
 import { Services } from "@/components/sections/Services";
-import { ProductShowcase } from "@/components/sections/ProductShowcase";
+import { ProductShowcase, type ProductData } from "@/components/sections/ProductShowcase";
 import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
 import { About } from "@/components/sections/About";
 import { Team } from "@/components/sections/Team";
@@ -29,6 +29,7 @@ export default async function Home() {
   const servicesData = await db.service.findMany({ where: { isActive: true }, orderBy: { order: "asc" } });
   const teamData = await db.teamMember.findMany({ where: { isActive: true }, orderBy: { order: "asc" } });
   const testimonialsData = await db.testimonial.findMany({ where: { isActive: true }, orderBy: { order: "asc" } });
+  const productsData = await db.product.findMany({ where: { isActive: true }, orderBy: { order: "asc" }, select: { name: true, slug: true, tagline: true, description: true, iconName: true, features: true } }) as ProductData[];
   
   const featuredProjectsData = await db.companyProject.findMany({
     where: { isActive: true, isFeatured: true },
@@ -40,7 +41,7 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center">
        <Hero settings={settings} />
        <Services data={servicesData} />
-       <ProductShowcase />
+       <ProductShowcase products={productsData} />
        <PortfolioPreview data={featuredProjectsData} />
        <About settings={settings} />
        <Team data={teamData} />

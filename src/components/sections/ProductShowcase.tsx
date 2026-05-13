@@ -2,18 +2,61 @@
 
 import * as React from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, ShoppingCart, GraduationCap, Package, Zap, CheckCircle2 } from "lucide-react"
+import { ArrowRight, Package, Zap, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import { Section } from "@/components/ui/Section"
 import { Heading, Text } from "@/components/ui/Typography"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent } from "@/components/ui/Card"
-import { cn } from "@/lib/utils"
+import * as LucideIcons from "lucide-react"
 
-export function ProductShowcase() {
+// Color palettes for product cards, cycled by index
+const CARD_PALETTES = [
+  { border: "hover:border-blue-500/50 hover:shadow-blue-500/10", bar: "from-blue-500 to-indigo-600", iconBg: "bg-blue-50 text-blue-600", badgeBg: "bg-blue-50 text-blue-700 border-blue-100", hoverText: "group-hover:text-blue-600", checkColor: "text-blue-500", accentText: "text-blue-600" },
+  { border: "hover:border-orange-500/50 hover:shadow-orange-500/10", bar: "from-orange-500 to-red-500", iconBg: "bg-orange-50 text-orange-600", badgeBg: "bg-orange-50 text-orange-700 border-orange-100", hoverText: "group-hover:text-orange-600", checkColor: "text-orange-500", accentText: "text-orange-600" },
+  { border: "hover:border-emerald-500/50 hover:shadow-emerald-500/10", bar: "from-emerald-500 to-teal-600", iconBg: "bg-emerald-50 text-emerald-600", badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-100", hoverText: "group-hover:text-emerald-600", checkColor: "text-emerald-500", accentText: "text-emerald-600" },
+  { border: "hover:border-purple-500/50 hover:shadow-purple-500/10", bar: "from-purple-500 to-violet-600", iconBg: "bg-purple-50 text-purple-600", badgeBg: "bg-purple-50 text-purple-700 border-purple-100", hoverText: "group-hover:text-purple-600", checkColor: "text-purple-500", accentText: "text-purple-600" },
+]
+
+export interface ProductData {
+  name: string
+  slug: string
+  tagline: string
+  description: string
+  iconName: string
+  features: string[]
+}
+
+interface ProductShowcaseProps {
+  products?: ProductData[]
+}
+
+// Default fallback products if DB is empty
+const defaultProducts: ProductData[] = [
+  {
+    name: "U-Kasir",
+    slug: "ukasir",
+    tagline: "Retail POS",
+    description: "The complete Point of Sale system for modern retail. Manage inventory, track sales, and grow your business offline & online.",
+    iconName: "ShoppingCart",
+    features: ["Real-time Stock Management", "QRIS & Multi-payment", "Offline-First Architecture"],
+  },
+  {
+    name: "U-Cademic",
+    slug: "u-cademic",
+    tagline: "Education",
+    description: "A smart campus ecosystem connecting schools, parents, and students. Digitalize academic processes effortlessly.",
+    iconName: "GraduationCap",
+    features: ["Learning Management System (LMS)", "Digital Attendance & Report", "Parent-Teacher Portal"],
+  },
+]
+
+export function ProductShowcase({ products }: ProductShowcaseProps) {
+  const productsToRender = products && products.length > 0 ? products : defaultProducts
+
   return (
     <Section id="products" className="bg-background relative overflow-hidden">
-       {/* Ambient Background - Consistent with Hero */}
+       {/* Ambient Background */}
        <div className="absolute top-1/2 right-0 -z-10 h-200 w-200 -translate-y-1/2 bg-orange-500/5 blur-[120px] rounded-full opacity-60" />
        <div className="absolute bottom-0 left-0 -z-10 h-150 w-150 bg-blue-500/5 blur-[100px] rounded-full opacity-60" />
 
@@ -37,98 +80,65 @@ export function ProductShowcase() {
         </motion.div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2 max-w-6xl mx-auto relative z-10 mb-16">
-          {/* U-Kasir Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-             <Link href="/products/ukasir" className="block h-full">
-                <Card className="group relative h-full overflow-hidden border-border bg-white hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 rounded-[2.5rem]">
-                   {/* Top Highlight Bar */}
-                   <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-blue-500 to-indigo-600" />
-                   
-                   <CardContent className="p-10 flex flex-col h-full relative z-10">
-                      <div className="flex items-start justify-between mb-8">
-                         <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                            <ShoppingCart className="w-8 h-8" />
-                         </div>
-                         <div className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider border border-blue-100">
-                            Retail POS
-                         </div>
-                      </div>
+      <div className={`grid gap-8 max-w-6xl mx-auto relative z-10 mb-16 ${productsToRender.length === 1 ? "max-w-xl" : "lg:grid-cols-2"}`}>
+          {productsToRender.map((product, index) => {
+            const palette = CARD_PALETTES[index % CARD_PALETTES.length]
+            // @ts-ignore - dynamic icon loading
+            const Icon = (LucideIcons as any)[product.iconName] || LucideIcons.Box
 
-                      <div className="space-y-4 mb-8">
-                         <h3 className="text-3xl font-bold text-foreground group-hover:text-blue-600 transition-colors">U-Kasir</h3>
-                         <p className="text-lg text-muted-foreground leading-relaxed">
-                            The complete Point of Sale system for modern retail. Manage inventory, track sales, and grow your business offline & online.
-                         </p>
-                      </div>
+            return (
+              <motion.div
+                key={product.slug}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                 <Link 
+                   href={product.slug === 'ukasir' ? 'https://www.ukasir.id/' : `/products/${product.slug}`} 
+                   className="block h-full"
+                 >
+                    <Card className={`group relative h-full overflow-hidden border-border bg-white ${palette.border} transition-all duration-500 rounded-[2.5rem]`}>
+                       {/* Top Highlight Bar */}
+                       <div className={`absolute top-0 inset-x-0 h-1 bg-linear-to-r ${palette.bar}`} />
+                       
+                       <CardContent className="p-10 flex flex-col h-full relative z-10">
+                          <div className="flex items-start justify-between mb-8">
+                             <div className={`h-16 w-16 rounded-2xl ${palette.iconBg} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                                <Icon className="w-8 h-8" />
+                             </div>
+                             <div className={`px-4 py-1.5 rounded-full ${palette.badgeBg} text-xs font-bold uppercase tracking-wider border`}>
+                                {product.tagline}
+                             </div>
+                          </div>
 
-                      <div className="space-y-3 mb-8 bg-zinc-50 p-6 rounded-2xl border border-zinc-100">
-                         {["Real-time Stock Management", "QRIS & Multi-payment", "Offline-First Architecture"].map((feat, i) => (
-                            <div key={i} className="flex items-center gap-3 text-sm font-medium text-foreground/80">
-                               <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" />
-                               {feat}
+                          <div className="space-y-4 mb-8">
+                             <h3 className={`text-3xl font-bold text-foreground ${palette.hoverText} transition-colors`}>{product.name}</h3>
+                             <p className="text-lg text-muted-foreground leading-relaxed">
+                                {product.description}
+                             </p>
+                          </div>
+
+                          {product.features.length > 0 && (
+                            <div className="space-y-3 mb-8 bg-zinc-50 p-6 rounded-2xl border border-zinc-100">
+                               {product.features.map((feat, i) => (
+                                  <div key={i} className="flex items-center gap-3 text-sm font-medium text-foreground/80">
+                                     <CheckCircle2 className={`w-5 h-5 ${palette.checkColor} shrink-0`} />
+                                     {feat}
+                                  </div>
+                               ))}
                             </div>
-                         ))}
-                      </div>
+                          )}
 
-                      <div className="mt-auto pt-6 flex items-center text-blue-600 font-bold group-hover:translate-x-2 transition-transform">
-                         Explore Features <ArrowRight className="ml-2 w-5 h-5" />
-                      </div>
-                   </CardContent>
-                </Card>
-             </Link>
-          </motion.div>
-
-          {/* U-Cademic Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-             <Link href="/products/u-cademic" className="block h-full">
-                <Card className="group relative h-full overflow-hidden border-border bg-white hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 rounded-[2.5rem]">
-                   {/* Top Highlight Bar */}
-                   <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-orange-500 to-red-500" />
-                   
-                   <CardContent className="p-10 flex flex-col h-full relative z-10">
-                      <div className="flex items-start justify-between mb-8">
-                         <div className="h-16 w-16 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                            <GraduationCap className="w-8 h-8" />
-                         </div>
-                         <div className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-700 text-xs font-bold uppercase tracking-wider border border-orange-100">
-                            Education
-                         </div>
-                      </div>
-
-                      <div className="space-y-4 mb-8">
-                         <h3 className="text-3xl font-bold text-foreground group-hover:text-orange-600 transition-colors">U-Cademic</h3>
-                         <p className="text-lg text-muted-foreground leading-relaxed">
-                            A smart campus ecosystem connecting schools, parents, and students. Digitalize academic processes effortlessly.
-                         </p>
-                      </div>
-
-                      <div className="space-y-3 mb-8 bg-zinc-50 p-6 rounded-2xl border border-zinc-100">
-                         {["Learning Management System (LMS)", "Digital Attendance & Report", "Parent-Teacher Portal"].map((feat, i) => (
-                            <div key={i} className="flex items-center gap-3 text-sm font-medium text-foreground/80">
-                               <CheckCircle2 className="w-5 h-5 text-orange-500 shrink-0" />
-                               {feat}
-                            </div>
-                         ))}
-                      </div>
-
-                      <div className="mt-auto pt-6 flex items-center text-orange-600 font-bold group-hover:translate-x-2 transition-transform">
-                         Learn More <ArrowRight className="ml-2 w-5 h-5" />
-                      </div>
-                   </CardContent>
-                </Card>
-             </Link>
-          </motion.div>
+                          <div className={`mt-auto pt-6 flex items-center ${palette.accentText} font-bold group-hover:translate-x-2 transition-transform`}>
+                             Learn More <ArrowRight className="ml-2 w-5 h-5" />
+                          </div>
+                       </CardContent>
+                    </Card>
+                 </Link>
+              </motion.div>
+            )
+          })}
       </div>
 
       {/* Enterprise / More Products */}

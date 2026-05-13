@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { LayoutDashboard, Users, LogOut, ChevronRight, ChevronDown, X, Briefcase, Shield, CreditCard, Activity, Wallet, FileText, Globe } from "lucide-react"
+import { LayoutDashboard, Users, LogOut, ChevronRight, ChevronDown, X, Briefcase, Shield, CreditCard, Activity, Wallet, FileText, Globe, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
@@ -54,6 +54,7 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
                 subItems: [
                     { label: "Site Settings", href: "/dashboard/settings" },
                     { label: "Services", href: "/dashboard/services" },
+                    { label: "Products", href: "/dashboard/products" },
                     { label: "Team Members", href: "/dashboard/team" },
                     { label: "Testimonials", href: "/dashboard/testimonials" }
                 ],
@@ -73,31 +74,6 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
                     { label: "Job Roles", href: "/dashboard/hr/roles" }
                 ]
             },
-        ]
-    },
-    {
-        title: "Mitra",
-        items: [
-            {
-                label: "Transactions",
-                href: "/dashboard/transactions",
-                icon: CreditCard,
-            },
-            {
-                label: "Mitra Aktif",
-                href: "/dashboard/mitra",
-                icon: Activity,
-            }
-        ]
-    },
-    {
-        title: "Affiliate",
-        items: [
-            {
-                label: "Withdrawals",
-                href: "/dashboard/withdrawals",
-                icon: Wallet,
-            }
         ]
     },
     {

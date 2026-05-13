@@ -1,4 +1,5 @@
-import { ProductShowcase } from "@/components/sections/ProductShowcase";
+import { ProductShowcase, type ProductData } from "@/components/sections/ProductShowcase";
+import { db } from "@/lib/db";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,19 +7,31 @@ export const metadata: Metadata = {
   description: "Explore our innovative digital solutions.",
 };
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  let products: ProductData[] = []
+
+  try {
+    const dbProducts = await db.product.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      select: {
+        name: true,
+        slug: true,
+        tagline: true,
+        description: true,
+        iconName: true,
+        features: true,
+      }
+    })
+    products = dbProducts as ProductData[]
+  } catch (error) {
+    console.error("Failed to fetch products:", error)
+    // ProductShowcase will use its default fallback products
+  }
+
   return (
     <main className="min-h-screen bg-neutral-950 pt-20">
-      <ProductShowcase />
-      {/* 
-        In a real scenario, this page would likely have a different layout 
-        or a full grid of all products, but for now re-using the immersive 
-        showcase ensures consistency and meets the "immersive" requirement.
-        We can expand this later.
-      */}
-      <div className="container mx-auto px-4 py-24 text-center text-white">
-          <p className="text-neutral-400">More products coming soon...</p>
-      </div>
+      <ProductShowcase products={products} />
     </main>
   );
 }
